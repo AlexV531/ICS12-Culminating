@@ -1,8 +1,4 @@
 
-import javax.swing.*;
-import javax.swing.event.*;
-import java.awt.*;
-import java.awt.event.*;
 
 public class Player extends PhysicsObject {
   // Physics stuff
@@ -47,14 +43,14 @@ public class Player extends PhysicsObject {
     return new Vector2(p.x + size/2, p.y + size/2);
   }
   
-  public void shoot() {
+  public void shoot(Vector2 mousePos) {
     
     if(shootTimer == rateOfFire) {
       // Recoil force
-      addForce(new Vector2(200, VMath.getAngleBetweenPoints(getCentre(), Mouse.pos) - Math.PI), .01);
+      addForce(new Vector2(200, VMath.getAngleBetweenPoints(getCentre(), mousePos) - Math.PI));
       // Bullet Vector (polar)
       bullet.x = range;
-      bullet.y = VMath.getAngleBetweenPoints(getCentre(), Mouse.pos);
+      bullet.y = VMath.getAngleBetweenPoints(getCentre(), mousePos);
       // Bullet Vector (cartesian)
       bullet = VMath.polarToCart(bullet);
       // Resets the timer/shooting variable
@@ -63,17 +59,17 @@ public class Player extends PhysicsObject {
     
   }
   
-  private void shootTimer() {
+  private void shootTimer(double deltaTime) {
     
     if(shootTimer < rateOfFire) {
-        shootTimer += Time.deltaTime();
+        shootTimer += deltaTime;
         if(shootTimer > rateOfFire) {
           shootTimer = rateOfFire;
         }
       }
   }
   
-  public void calcPos() {
+  public void calcPos(double deltaTime) {
     // Overrides Physics Object's calcPos
     // Y Axis
     if(mUp == true) {
@@ -86,7 +82,7 @@ public class Player extends PhysicsObject {
       // If there is no player imput, then:
       if(walkVelo.y > 0) {
         // If the acceleration would go too far:
-        if(walkVelo.y + walkAcc.y * Time.deltaTime() < 0) {
+        if(walkVelo.y + walkAcc.y * deltaTime < 0) {
           walkVelo.y = 0;
           walkAcc.y = 0;
         } 
@@ -96,7 +92,7 @@ public class Player extends PhysicsObject {
       }
       else if(walkVelo.y < 0) {
         // If the acceleration would go too far:
-        if(walkVelo.y + walkAcc.y * Time.deltaTime() > 0) {
+        if(walkVelo.y + walkAcc.y * deltaTime > 0) {
           walkVelo.y = 0;
           walkAcc.y = 0;
         }
@@ -119,7 +115,7 @@ public class Player extends PhysicsObject {
       // If there is no player input, then:
       if(walkVelo.x > 0) {
         // If the acceleration would go too far:
-        if(walkVelo.x + walkAcc.x * Time.deltaTime() < 0) {
+        if(walkVelo.x + walkAcc.x * deltaTime < 0) {
           walkVelo.x = 0;
           walkAcc.x = 0;
         }
@@ -129,7 +125,7 @@ public class Player extends PhysicsObject {
       }
       else if(walkVelo.x < 0) {
         // If the acceleration would go too far:
-        if(walkVelo.x + walkAcc.x * Time.deltaTime() > 0) {
+        if(walkVelo.x + walkAcc.x * deltaTime > 0) {
           walkVelo.x = 0;
           walkAcc.x = 0;
         } 
@@ -143,7 +139,7 @@ public class Player extends PhysicsObject {
     }
     
     // Acceleration calculated, now on to velocity
-    walkVelo = VMath.addVectors(walkVelo, VMath.multiplyByScalar(walkAcc, Time.deltaTime()));
+    walkVelo = VMath.addVectors(walkVelo, VMath.multiplyByScalar(walkAcc, deltaTime));
     // If the velocity has reached maximum velocity
     if(walkVelo.x >= maxVelo) {
       walkVelo.x = maxVelo;
@@ -158,10 +154,10 @@ public class Player extends PhysicsObject {
       walkVelo.y = -maxVelo;
     }
     // Increments the shootTimer
-    shootTimer();
+    shootTimer(deltaTime);
     
     // Adds the walking velocity to the physics position
-    p = VMath.addVectors(VMath.multiplyByScalar(walkVelo, Time.deltaTime()), p);
+    p = VMath.addVectors(VMath.multiplyByScalar(walkVelo, deltaTime), p);
     super.calcPos();
     
   }

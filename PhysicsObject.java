@@ -8,7 +8,7 @@ public class PhysicsObject {
   // Force Variables
   Vector2 fNet = new Vector2();
   Vector2 fFriction = new Vector2();
-  ArrayList<Force> forceList = new ArrayList<Force>();
+  ArrayList<Vector2> forceList = new ArrayList<Vector2>();
   // Wall Collisions
   boolean collisionX = false;
   boolean collisionY = false;
@@ -42,10 +42,9 @@ public class PhysicsObject {
   }
   
   // Adds a force to the force list
-  public void addForce(Vector2 force, double t) {
+  public void addForce(Vector2 force) {
     // Adds the force to the list of active forces
-    Force forceToAdd = new Force(force, t);
-    forceList.add(forceToAdd);
+    forceList.add(force);
   }
   
   // Adds the list of active forces to a net force
@@ -53,14 +52,9 @@ public class PhysicsObject {
     for(int i = 0;  i < forceList.size(); i++) {
       
       // Adds the force vector to the net force
-      fNet = VMath.addVectors(fNet, VMath.polarToCart(forceList.get(i).vector));
-      
-      // Subtracts the frame's time from the force's timer
-      forceList.get(i).time = forceList.get(i).time - Time.deltaTime();
-      if(forceList.get(i).time <= 0) { // If the timer runs out, remove force
-        forceList.remove(i);
-      }
+      fNet = VMath.addVectors(fNet, VMath.polarToCart(forceList.get(i)));
     }
+    forceList.clear();
   }
   
   // Adds friction to the net force

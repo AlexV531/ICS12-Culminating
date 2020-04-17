@@ -1,4 +1,4 @@
-// Test
+
 public class ChasingEnemy extends PhysicsObject {
   
   Player target = new Player();
@@ -24,9 +24,9 @@ public class ChasingEnemy extends PhysicsObject {
     return new Vector2(p.x + size/2, p.y + size/2);
   }
   
-  public void calcPos() {
+  public void calcPos(double deltaTime) {
     
-    velo.x = maxSpeed * Time.deltaTime();
+    velo.x = maxSpeed * deltaTime;
     velo.y = VMath.getAngleBetweenPoints(getCentre(), target.getCentre());
     
     p = VMath.addVectors(VMath.polarToCart(velo), p);
@@ -46,7 +46,7 @@ public class ChasingEnemy extends PhysicsObject {
       // subtracts health
       hp -= target.damage;
       // adds a force to the enemy
-      addForce(new Vector2(target.power, VMath.getAngleBetweenPoints(playerPos, bulletPos)), 0.001);
+      addForce(new Vector2(target.power, VMath.getAngleBetweenPoints(playerPos, bulletPos)));
     }
   }
   

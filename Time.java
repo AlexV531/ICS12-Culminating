@@ -6,14 +6,12 @@ public class Time {
   private static double timestep;
   
   
-  public static void calcTime() {
+  public static double calcTime() {
     
     time = System.currentTimeMillis();
     timestep = 0.001 * (time - lastTime);
-    /*if (timestep <= 0 || timestep > 1.0) {
-        timestep = 0.001;  // avoid absurd time steps
-    }*/
     lastTime = time;
+    return timestep;
   }
   
   public static double deltaTime() {

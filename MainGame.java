@@ -1,9 +1,8 @@
 import javax.swing.*;
-import javax.swing.event.*;
 import java.awt.*;
 import java.awt.event.*;
 
-
+@SuppressWarnings("serial")
 class MainGame extends JFrame implements ActionListener { 
   
   // Name-constants for the various dimensions
@@ -16,11 +15,7 @@ class MainGame extends JFrame implements ActionListener {
   // the buttons
   JButton btnQ1, btnQ2, btnQ3, btnExit;
   
-  int progToRun;
-  
-  Mouse m = new Mouse();
-  
-  Player player = new Player(new Vector2(500, 500), 50, 10);
+  Player player = new Player(new Vector2(0, 0), 50, 10);
   
   ChasingEnemy enemy1 = new ChasingEnemy(new Vector2(100, 500), 40, 5);
   
@@ -34,7 +29,6 @@ class MainGame extends JFrame implements ActionListener {
     
     // update the screen every amount of milliseconds (specified below
     timer =  new Timer(40, this);
-    progToRun = -1;
     
     // Set up a custom drawing JPanel
     canvas = new DrawCanvas();
@@ -74,7 +68,7 @@ class MainGame extends JFrame implements ActionListener {
       if(player.shootTimer == player.rateOfFire) {
         playerShooting = true;
       }
-      player.shoot();
+      
     });
     
     
@@ -120,25 +114,34 @@ class MainGame extends JFrame implements ActionListener {
    * DrawCanvas (inner class) is a JPanel used for custom drawing
    */
   class DrawCanvas extends JPanel {
+
     // Add Images
     ImageIcon ic = new ImageIcon("MetalPanel.png");
     Image i = ic.getImage();
     
+    double deltaTime = 0;
+
+    Vector2 mousePos = new Vector2();
+
     public void paintComponent(Graphics g) {
       // erase the screen 
       super.paintComponent(g);
       
       // Gets the mouse position
       Point mousePoint = canvas.getMousePosition();
-      m.updateMousePos(mousePoint, CANVAS_WIDTH, CANVAS_HEIGHT, player);
+      if(mousePoint != null) {
+        mousePos.x = (mousePoint.getX() - CANVAS_WIDTH/2) + player.p.x;
+        mousePos.y = (mousePoint.getY() - CANVAS_HEIGHT/2) + player.p.y;
+        //Mouse.updateMousePos(mousePoint, CANVAS_WIDTH, CANVAS_HEIGHT, player);
+      }
       
       // Calculate the timestep
-      Time.calcTime();
+      deltaTime = Time.calcTime();
       
       // Updates the player/enemy positions
-      player.calcPos();
-      enemy1.calcPos();
-      enemy2.calcPos();
+      player.calcPos(deltaTime);
+      enemy1.calcPos(deltaTime);
+      enemy2.calcPos(deltaTime);
       
       // Moves the camera to focus on player
       g.translate((int)-(player.p.x - CANVAS_WIDTH/2), (int)-(player.p.y - CANVAS_HEIGHT/2));
@@ -160,12 +163,14 @@ class MainGame extends JFrame implements ActionListener {
       // Manages collisions between the player and the enemies (should move elsewhere, enemy class?)
       if(VMath.getDistanceBetweenPoints(player.getCentre(), enemy1.getCentre()) < player.size/2 + enemy1.size/2) {
         
-        player.addForce(new Vector2(50, VMath.getAngleBetweenPoints(enemy1.getCentre(), player.getCentre())), 0.001);
-        enemy1.addForce(new Vector2(50, VMath.getAngleBetweenPoints(player.getCentre(), enemy1.getCentre())), 0.001);
+        player.addForce(new Vector2(50, VMath.getAngleBetweenPoints(enemy1.getCentre(), player.getCentre())));
+        enemy1.addForce(new Vector2(50, VMath.getAngleBetweenPoints(player.getCentre(), enemy1.getCentre())));
         
       }
-      // Manages player shooting (should try to move to player class?)
+      // Manages player shooting (should try to move to Keybinding once I have a Start method)
       if(playerShooting) {
+        // Player's shoot method
+        player.shoot(mousePos);
         // Enemy/Bullet collisions
         enemy1.collisionCheck(player.getCentre(), player.bullet);
         enemy2.collisionCheck(player.getCentre(), player.bullet);
