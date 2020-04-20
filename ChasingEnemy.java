@@ -31,7 +31,7 @@ public class ChasingEnemy extends PhysicsObject {
     
     p = VMath.addVectors(VMath.polarToCart(velo), p);
     
-    super.calcPos();
+    super.calcPos(deltaTime);
     
   }
   

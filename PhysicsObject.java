@@ -25,16 +25,16 @@ public class PhysicsObject {
     m = mass;
   }
   
-  public void calcPos() {
+  public void calcPos(double deltaTime) {
     // Calculates net force
     addForces();
     addFriction();
     // Calculates acceleration
-    a.x = fNet.x / m;
-    a.y = fNet.y / m;
+    a.x = fNet.x; // / m;
+    a.y = fNet.y; // / m;
     // Calculates velocity and position
-    v = VMath.addVectors(a, v);
-    p = VMath.addVectors(v, p);
+    v = VMath.addVectors(VMath.multiplyByScalar(a, deltaTime), v);
+    p = VMath.addVectors(VMath.multiplyByScalar(v, deltaTime), p);
     
     // Clears the net force
     fNet.x = 0;
@@ -60,7 +60,7 @@ public class PhysicsObject {
   // Adds friction to the net force
   private void addFriction() {
     // Calculates friction magnitude and direction
-    fFriction.x = m * G * mu;
+    fFriction.x = m * G * mu * 50;
     fFriction.y = VMath.cartToPolar(v).y - Math.PI;
 
     // Accounts for the friction changing direction of motion

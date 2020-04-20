@@ -11,7 +11,7 @@ public class Player extends PhysicsObject {
   double damage = 10;
   double range = 500;
   double rateOfFire = 0.5;
-  double power = 80;
+  double power = 5000;
   // Personal stats
   double hp = 100;
   // Shooting variables
@@ -47,7 +47,7 @@ public class Player extends PhysicsObject {
     
     if(shootTimer == rateOfFire) {
       // Recoil force
-      addForce(new Vector2(200, VMath.getAngleBetweenPoints(getCentre(), mousePos) - Math.PI));
+      addForce(new Vector2(10000, VMath.getAngleBetweenPoints(getCentre(), mousePos) - Math.PI));
       // Bullet Vector (polar)
       bullet.x = range;
       bullet.y = VMath.getAngleBetweenPoints(getCentre(), mousePos);
@@ -155,10 +155,10 @@ public class Player extends PhysicsObject {
     }
     // Increments the shootTimer
     shootTimer(deltaTime);
-    
+
     // Adds the walking velocity to the physics position
     p = VMath.addVectors(VMath.multiplyByScalar(walkVelo, deltaTime), p);
-    super.calcPos();
+    super.calcPos(deltaTime);
     
   }
   

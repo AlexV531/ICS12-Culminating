@@ -132,7 +132,6 @@ class MainGame extends JFrame implements ActionListener {
       if(mousePoint != null) {
         mousePos.x = (mousePoint.getX() - CANVAS_WIDTH/2) + player.p.x;
         mousePos.y = (mousePoint.getY() - CANVAS_HEIGHT/2) + player.p.y;
-        //Mouse.updateMousePos(mousePoint, CANVAS_WIDTH, CANVAS_HEIGHT, player);
       }
       
       // Calculate the timestep
@@ -141,7 +140,7 @@ class MainGame extends JFrame implements ActionListener {
       // Updates the player/enemy positions
       player.calcPos(deltaTime);
       enemy1.calcPos(deltaTime);
-      enemy2.calcPos(deltaTime);
+      //enemy2.calcPos(deltaTime);
       
       // Moves the camera to focus on player
       g.translate((int)-(player.p.x - CANVAS_WIDTH/2), (int)-(player.p.y - CANVAS_HEIGHT/2));
@@ -158,13 +157,13 @@ class MainGame extends JFrame implements ActionListener {
       
       g.setColor(Color.RED);
       g.fillOval((int)enemy1.p.x, (int)enemy1.p.y, enemy1.size, enemy1.size);
-      g.fillOval((int)enemy2.p.x, (int)enemy2.p.y, enemy2.size, enemy2.size);
+      //g.fillOval((int)enemy2.p.x, (int)enemy2.p.y, enemy2.size, enemy2.size);
       
       // Manages collisions between the player and the enemies (should move elsewhere, enemy class?)
       if(VMath.getDistanceBetweenPoints(player.getCentre(), enemy1.getCentre()) < player.size/2 + enemy1.size/2) {
         
-        player.addForce(new Vector2(50, VMath.getAngleBetweenPoints(enemy1.getCentre(), player.getCentre())));
-        enemy1.addForce(new Vector2(50, VMath.getAngleBetweenPoints(player.getCentre(), enemy1.getCentre())));
+        player.addForce(new Vector2(6000, VMath.getAngleBetweenPoints(enemy1.getCentre(), player.getCentre())));
+        enemy1.addForce(new Vector2(2000, VMath.getAngleBetweenPoints(player.getCentre(), enemy1.getCentre())));
         
       }
       // Manages player shooting (should try to move to Keybinding once I have a Start method)
