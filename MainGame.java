@@ -15,7 +15,7 @@ class MainGame extends JFrame implements ActionListener {
   // the buttons
   JButton btnQ1, btnQ2, btnQ3, btnExit;
   
-  Player player = new Player(new Vector2(0, 0), 50, 10);
+  Player player = new Player(new Vector2(0, 0), 64, 10);
   
   ChasingEnemy enemy1 = new ChasingEnemy(new Vector2(100, 500), 40, 5);
   
@@ -115,16 +115,28 @@ class MainGame extends JFrame implements ActionListener {
    */
   class DrawCanvas extends JPanel {
 
-    // Add Images
+    // Add images
     ImageIcon ic = new ImageIcon("MetalPanel.png");
     Image i = ic.getImage();
+
+    // // Add the player images
+    // ImageIcon pP1 = new ImageIcon("Soldier01-P1-NoLimbs.png");
+    // Image playerP1Image = pP1.getImage();
+    // ImageIcon pLL = new ImageIcon("Soldier01-LeftLeg.png");
+    // Image playerLLImage = pLL.getImage();
+    // ImageIcon pRL = new ImageIcon("Soldier01-RightLeg.png");
+    // Image playerRLImage = pRL.getImage();
+    // ImageIcon pLH = new ImageIcon("Soldier01-LeftHand.png");
+    // Image playerLAImage = pLH.getImage();
+    // ImageIcon pRH = new ImageIcon("Soldier01-RightHand.png");
+    // Image playerRAImage = pRH.getImage();
     
     double deltaTime = 0;
 
     Vector2 mousePos = new Vector2();
 
     public void paintComponent(Graphics g) {
-      // erase the screen 
+      // Erase the screen 
       super.paintComponent(g);
       
       // Gets the mouse position
@@ -151,10 +163,19 @@ class MainGame extends JFrame implements ActionListener {
       // Testing floor
       Level.addFloor(g, -1000, -1000, 20, 20, i);
       
+      // // Draws the player leg sprites
+      // g.drawImage(playerLLImage, (int)player.p.x, (int)player.p.y, null);
+      // g.drawImage(playerRLImage, (int)player.p.x, (int)player.p.y, null);
+      // // Draws the player sprite
+      // g.drawImage(playerP1Image, (int)player.p.x, (int)player.p.y, null);
+      // // Draws the player hand sprites
+      // g.drawImage(playerLAImage, (int)player.p.x, (int)player.p.y, null);
+      // g.drawImage(playerRAImage, (int)player.p.x, (int)player.p.y, null);
+
+
       // Draws the player/enemies
-      g.setColor(Color.GREEN);
-      g.fillOval((int)player.p.x, (int)player.p.y, player.size, player.size);
-      
+      player.drawPlayer(g);
+
       g.setColor(Color.RED);
       g.fillOval((int)enemy1.p.x, (int)enemy1.p.y, enemy1.size, enemy1.size);
       //g.fillOval((int)enemy2.p.x, (int)enemy2.p.y, enemy2.size, enemy2.size);

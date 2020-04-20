@@ -1,3 +1,5 @@
+import javax.swing.*;
+import java.awt.*;
 
 
 public class Player extends PhysicsObject {
@@ -18,6 +20,16 @@ public class Player extends PhysicsObject {
   double shootTimer = 0;
   Vector2 bullet = new Vector2();
   
+  // Player sprites
+  Image playerP1Image;
+  Image playerLLImage;
+  Image playerRLImage;
+  Image playerLHImage;
+  Image playerRHImage;
+  // Animation Helpers
+  double legCount = 0;
+  double legMod = 0;
+
   public Player() { 
     super(new Vector2(0, 0), 0, 0);
     maxVelo = 300;
@@ -36,6 +48,16 @@ public class Player extends PhysicsObject {
     mDown = false;
     mLeft = false;
     mRight = false;
+    ImageIcon pP1 = new ImageIcon("Soldier01-P1-NoLimbs.png");
+    playerP1Image = pP1.getImage();
+    ImageIcon pLL = new ImageIcon("Soldier01-LeftLeg.png");
+    playerLLImage = pLL.getImage();
+    ImageIcon pRL = new ImageIcon("Soldier01-RightLeg.png");
+    playerRLImage = pRL.getImage();
+    ImageIcon pLH = new ImageIcon("Soldier01-LeftHand.png");
+    playerLHImage = pLH.getImage();
+    ImageIcon pRH = new ImageIcon("Soldier01-RightHand.png");
+    playerRHImage = pRH.getImage();
   }
   
   public Vector2 getCentre() {
@@ -43,6 +65,28 @@ public class Player extends PhysicsObject {
     return new Vector2(p.x + size/2, p.y + size/2);
   }
   
+  public void drawPlayer(Graphics g) {
+    if(mUp == true || mDown == true || mRight == true || mLeft == true) {
+      legCount++;
+      if(legCount > 10000) {
+        legCount = 0;
+      }
+      legMod = Math.sin(legCount * 1/1.2) * 6;
+    } 
+    else {
+      legMod = 0;
+    }
+    // Draws the player leg sprites
+    g.drawImage(playerLLImage, (int)p.x, (int)(p.y + legMod), null);
+    g.drawImage(playerRLImage, (int)p.x, (int)(p.y - legMod), null);
+    // Draws the player sprite
+    g.drawImage(playerP1Image, (int)p.x, (int)p.y, null);
+    // Draws the player hand sprites
+    g.drawImage(playerLHImage, (int)p.x, (int)p.y, null);
+    g.drawImage(playerRHImage, (int)p.x, (int)p.y, null);
+
+  }
+
   public void shoot(Vector2 mousePos) {
     
     if(shootTimer == rateOfFire) {
@@ -159,7 +203,6 @@ public class Player extends PhysicsObject {
     // Adds the walking velocity to the physics position
     p = VMath.addVectors(VMath.multiplyByScalar(walkVelo, deltaTime), p);
     super.calcPos(deltaTime);
-    
   }
   
 }
