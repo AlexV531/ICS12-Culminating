@@ -118,18 +118,6 @@ class MainGame extends JFrame implements ActionListener {
     // Add images
     ImageIcon ic = new ImageIcon("MetalPanel.png");
     Image i = ic.getImage();
-
-    // // Add the player images
-    // ImageIcon pP1 = new ImageIcon("Soldier01-P1-NoLimbs.png");
-    // Image playerP1Image = pP1.getImage();
-    // ImageIcon pLL = new ImageIcon("Soldier01-LeftLeg.png");
-    // Image playerLLImage = pLL.getImage();
-    // ImageIcon pRL = new ImageIcon("Soldier01-RightLeg.png");
-    // Image playerRLImage = pRL.getImage();
-    // ImageIcon pLH = new ImageIcon("Soldier01-LeftHand.png");
-    // Image playerLAImage = pLH.getImage();
-    // ImageIcon pRH = new ImageIcon("Soldier01-RightHand.png");
-    // Image playerRAImage = pRH.getImage();
     
     double deltaTime = 0;
 
@@ -150,8 +138,8 @@ class MainGame extends JFrame implements ActionListener {
       deltaTime = Time.calcTime();
       
       // Updates the player/enemy positions
-      player.calcPos(deltaTime);
-      enemy1.calcPos(deltaTime);
+      player.calcPos(deltaTime, mousePos);
+      //enemy1.calcPos(deltaTime);
       //enemy2.calcPos(deltaTime);
       
       // Moves the camera to focus on player
@@ -162,16 +150,6 @@ class MainGame extends JFrame implements ActionListener {
       
       // Testing floor
       Level.addFloor(g, -1000, -1000, 20, 20, i);
-      
-      // // Draws the player leg sprites
-      // g.drawImage(playerLLImage, (int)player.p.x, (int)player.p.y, null);
-      // g.drawImage(playerRLImage, (int)player.p.x, (int)player.p.y, null);
-      // // Draws the player sprite
-      // g.drawImage(playerP1Image, (int)player.p.x, (int)player.p.y, null);
-      // // Draws the player hand sprites
-      // g.drawImage(playerLAImage, (int)player.p.x, (int)player.p.y, null);
-      // g.drawImage(playerRAImage, (int)player.p.x, (int)player.p.y, null);
-
 
       // Draws the player/enemies
       player.drawPlayer(g);
@@ -190,7 +168,7 @@ class MainGame extends JFrame implements ActionListener {
       // Manages player shooting (should try to move to Keybinding once I have a Start method)
       if(playerShooting) {
         // Player's shoot method
-        player.shoot(mousePos);
+        player.shoot();
         // Enemy/Bullet collisions
         enemy1.collisionCheck(player.getCentre(), player.bullet);
         enemy2.collisionCheck(player.getCentre(), player.bullet);
