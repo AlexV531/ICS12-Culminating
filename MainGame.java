@@ -22,7 +22,8 @@ class MainGame extends JFrame implements ActionListener {
   ChasingEnemy enemy2 = new ChasingEnemy(new Vector2(100, 400), 40, 5);
   
   boolean playerShooting = false;
-  
+  boolean startCondition = false;
+
   // timer to update the screen
   Timer timer;
   public MainGame() {
@@ -110,28 +111,34 @@ class MainGame extends JFrame implements ActionListener {
     });
   }
   
-  /* 
-   * DrawCanvas (inner class) is a JPanel used for custom drawing
-   */
+  
+  //DrawCanvas (inner class) is a JPanel used for custom drawing
   class DrawCanvas extends JPanel {
 
     // Add images
-    ImageIcon ic = new ImageIcon("MetalPanel.png");
+    ImageIcon ic = new ImageIcon("images/MetalPanel.png");
     Image i = ic.getImage();
     
     double deltaTime = 0;
 
     Vector2 mousePos = new Vector2();
 
+    public void startScreen() {
+
+      
+    }
+
     public void paintComponent(Graphics g) {
       // Erase the screen 
       super.paintComponent(g);
-      
+
+      Graphics2D g2D = (Graphics2D)g;
+
       // Gets the mouse position
       Point mousePoint = canvas.getMousePosition();
       if(mousePoint != null) {
-        mousePos.x = (mousePoint.getX() - CANVAS_WIDTH/2) + player.p.x;
-        mousePos.y = (mousePoint.getY() - CANVAS_HEIGHT/2) + player.p.y;
+        mousePos.x = (mousePoint.getX() - CANVAS_WIDTH/2) + player.getCentre().x;
+        mousePos.y = (mousePoint.getY() - CANVAS_HEIGHT/2) + player.getCentre().y;
       }
       
       // Calculate the timestep
@@ -139,25 +146,30 @@ class MainGame extends JFrame implements ActionListener {
       
       // Updates the player/enemy positions
       player.calcPos(deltaTime, mousePos);
-      //enemy1.calcPos(deltaTime);
+      enemy1.calcPos(deltaTime);
       //enemy2.calcPos(deltaTime);
       
       // Moves the camera to focus on player
-      g.translate((int)-(player.p.x - CANVAS_WIDTH/2), (int)-(player.p.y - CANVAS_HEIGHT/2));
+      g2D.translate((int)-(player.getCentre().x - CANVAS_WIDTH/2), (int)-(player.getCentre().y - CANVAS_HEIGHT/2));
       
       // Draws the background
       setBackground(CANVAS_BACKGROUND); 
       
       // Testing floor
-      Level.addFloor(g, -1000, -1000, 20, 20, i);
+      Level.addFloor(g2D, -1000, -1000, 50, 50, i);
 
       // Draws the player/enemies
-      player.drawPlayer(g);
+      player.drawPlayer(g2D, CANVAS_WIDTH, CANVAS_HEIGHT);
 
-      g.setColor(Color.RED);
-      g.fillOval((int)enemy1.p.x, (int)enemy1.p.y, enemy1.size, enemy1.size);
-      //g.fillOval((int)enemy2.p.x, (int)enemy2.p.y, enemy2.size, enemy2.size);
-      
+      g2D.setColor(Color.RED);
+      g2D.fillOval((int)enemy1.p.x, (int)enemy1.p.y, enemy1.size, enemy1.size);
+      //g2D.fillOval((int)enemy2.p.x, (int)enemy2.p.y, enemy2.size, enemy2.size);
+
+      g2D.drawImage(player.shotgunLeft, 100, 100, null);
+
+      g2D.drawImage(player.shotgunRight, 200, 100, null);
+
+
       // Manages collisions between the player and the enemies (should move elsewhere, enemy class?)
       if(VMath.getDistanceBetweenPoints(player.getCentre(), enemy1.getCentre()) < player.size/2 + enemy1.size/2) {
         
@@ -173,11 +185,10 @@ class MainGame extends JFrame implements ActionListener {
         enemy1.collisionCheck(player.getCentre(), player.bullet);
         enemy2.collisionCheck(player.getCentre(), player.bullet);
         // Draws the bullet trail
-        g.setColor(Color.WHITE);
-        g.drawLine((int)player.getCentre().x, (int)player.getCentre().y, (int)(player.bullet.x + player.getCentre().x), (int)(player.bullet.y + player.getCentre().y));
+        g2D.setColor(Color.WHITE);
+        g2D.drawLine((int)player.getCentre().x, (int)player.getCentre().y, (int)(player.bullet.x + player.getCentre().x), (int)(player.bullet.y + player.getCentre().y));
         playerShooting = false;
       }
-      
     }    
   }
   
