@@ -7,20 +7,23 @@ public class Player extends PhysicsObject {
   // Physics stuff
   Vector2 walkVelo = new Vector2();
   Vector2 walkAcc = new Vector2();
-  double maxVelo;
-  double maxAcc;
+  double maxVelo = 300;
+  double maxAcc = 900;
   boolean mUp, mLeft, mDown, mRight, shooting;
   // Weapon stats
   int weapon = 1; // 0 == Hands, 1 == Shotgun
   double damage = 10;
   double range = 500;
   double rateOfFire = 0.5;
-  double power = 10000;
+  double power = 1000;
+  int pelletCount = 5;
+  double spread = 0.10; // Affects how spread out the shotgun pellets are
   // Personal stats
   double hp = 100;
   // Shooting variables
   double shootTimer = 0;
   Vector2 bullet = new Vector2();
+  Vector2[] pellets = new Vector2[pelletCount];
   double centreMouseRad = 0;
   // Player sprites
   Image playerP1Image, playerP2Image, playerP3Image, playerP4Image, playerP5Image, playerP6Image, playerP7Image, playerP8Image, currentImage;
@@ -36,14 +39,10 @@ public class Player extends PhysicsObject {
   
   public Player() { 
     super(new Vector2(0, 0), 0, 0);
-    maxVelo = 300;
-    maxAcc = 900;
   }
   
   public Player(Vector2 startPos, int s, double mass) { 
     super(startPos, s, mass);
-    maxVelo = 300;
-    maxAcc = 900;
     ImageIcon pP1 = new ImageIcon("images/Soldier01-P1-NoLimbs.png");
     playerP1Image = pP1.getImage();
     ImageIcon pP2 = new ImageIcon("images/Soldier01-P2-NoLimbs.png");
@@ -75,6 +74,11 @@ public class Player extends PhysicsObject {
     shotgunLeft = sgl.getImage();
     ImageIcon sgr = new ImageIcon("images/ShotgunRight.png");
     shotgunRight = sgr.getImage();
+
+    // Not super sure if this is ok, should figure out if there is a better fix
+    for(int i = 0; i < pelletCount; i++) {
+      pellets[i] = new Vector2();
+    }
   }
   
   public Vector2 getCentre() {
@@ -238,13 +242,32 @@ public class Player extends PhysicsObject {
   public void shoot() {
     
     if(shootTimer == rateOfFire) {
-      // Recoil force
+      // Recoil force in opposite direction of player
       addForce(new Vector2(10000, centreMouseRad - Math.PI));
-      // Bullet Vector (polar)
-      bullet.x = range;
-      bullet.y = centreMouseRad;
-      // Bullet Vector (cartesian)
-      bullet = VMath.polarToCart(bullet);
+      
+      // If the player has a shotgun
+      if(weapon == 1) {
+        double offset = 0;
+        for(int i = 0; i < pelletCount; i++) {
+          offset = (Math.random() - 0.5) * spread;
+          pellets[i].x = range;
+          pellets[i].y = centreMouseRad + offset;
+          
+          pellets[i] = VMath.polarToCart(pellets[i]);
+        }
+      } 
+      
+
+      // If the player has any other gun
+      else {
+        // Bullet Vector (polar)
+        bullet.x = range;
+        bullet.y = centreMouseRad;
+        // Bullet Vector (cartesian)
+        bullet = VMath.polarToCart(bullet);
+      }
+      
+
       // Resets the timer/shooting variable
       shootTimer = 0;
     }

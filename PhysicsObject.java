@@ -18,6 +18,11 @@ public class PhysicsObject {
   // Personal stats
   int size;
   double m;
+  // Boundarys
+  int topBound = -1000;
+  int bottomBound = 1000;
+  int leftBound = -1000;
+  int rightBound = 1000;
   
   public PhysicsObject(Vector2 startingPos, int size, double mass) { 
     this.size = size;
@@ -36,6 +41,8 @@ public class PhysicsObject {
     v = VMath.addVectors(VMath.multiplyByScalar(a, deltaTime), v);
     p = VMath.addVectors(VMath.multiplyByScalar(v, deltaTime), p);
     
+    boundaryCheck();
+
     // Clears the net force
     fNet.x = 0;
     fNet.y = 0;
@@ -72,6 +79,29 @@ public class PhysicsObject {
     // Adds friction to the net force
     else if(VMath.cartToPolar(v).x > 0) {
       fNet = VMath.addVectors(fNet, VMath.polarToCart(fFriction));
+    }
+  }
+
+  private void boundaryCheck() {
+    if(p.y < topBound) {
+      a.y = 0;
+      v.y = 0;
+      p.y = topBound;
+    }
+    else if(p.y > bottomBound) {
+      a.y = 0;
+      v.y = 0;
+      p.y = bottomBound;
+    }
+    if(p.x < leftBound) {
+      a.x = 0;
+      v.x = 0;
+      p.x = leftBound;
+    }
+    else if(p.x > rightBound) {
+      a.x = 0;
+      v.x = 0;
+      p.x = rightBound;
     }
   }
 }
