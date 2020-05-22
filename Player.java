@@ -10,25 +10,14 @@ public class Player extends PhysicsObject {
   double maxVelo = 300;
   double maxAcc = 900;
   boolean mUp, mLeft, mDown, mRight, shooting;
-  // Weapon stats
-  int weapon = 1; // 0 == Hands, 1 == Shotgun
-  double damage = 10;
-  double range = 500;
-  double rateOfFire = 0.5;
-  double power = 1000;
-  int pelletCount = 5;
-  double spread = 0.10; // Affects how spread out the shotgun pellets are
+  
   // Personal stats
   double hp = 100;
-  // Shooting variables
-  double shootTimer = 0;
-  Vector2 bullet = new Vector2();
-  Vector2[] pellets = new Vector2[pelletCount];
-  double centreMouseRad = 0;
+  
   // Player sprites
   Image playerP1Image, playerP2Image, playerP3Image, playerP4Image, playerP5Image, playerP6Image, playerP7Image, playerP8Image, currentImage;
   // Player limb sprites
-  Image playerLLImage, playerRLImage, playerLHImage, playerRHImage, shotgunLeft, shotgunRight;
+  Image playerLLImage, playerRLImage, playerLHImage, playerRHImage, shotgunLeft, shotgunRight, pistolLeft, pistolRight;
 
   // Animation Helpers
   double legCount = 0;
@@ -36,6 +25,24 @@ public class Player extends PhysicsObject {
   boolean leftHandBehind, rightHandBehind= false;
   boolean weaponBehind = false;
   boolean handsShown = false;
+  
+  // Weapon stats
+  int weapon = 2; // 0 == Hands, 1 == Pistol, 2 == Shotgun
+  double damage = 10; // Damage done by bullet or pellet
+  double range = 500; // Distance in pixels the bullet or pellets travel
+  double rateOfFire = 0.5; // Time in seconds it takes to shot again
+  double power = 1000; // Force the enemy is knocked back with
+  int pelletCount = 5; // To disable pellets set to zero
+  double spread = 0.10; // Affects how spread out the shotgun pellets are
+  double recoil = 10000; // Force the player is pushed back
+  Image weaponLeft;
+  Image weaponRight;
+
+  // Shooting variables
+  double shootTimer = 0;
+  Vector2 bullet = new Vector2();
+  Vector2[] pellets = new Vector2[pelletCount];
+  double centreMouseRad = 0;
   
   public Player() { 
     super(new Vector2(0, 0), 0, 0);
@@ -74,6 +81,15 @@ public class Player extends PhysicsObject {
     shotgunLeft = sgl.getImage();
     ImageIcon sgr = new ImageIcon("images/ShotgunRight.png");
     shotgunRight = sgr.getImage();
+
+    ImageIcon pl = new ImageIcon("images/PistolLeft.png");
+    pistolLeft = pl.getImage();
+    ImageIcon pr = new ImageIcon("images/PistolRight.png");
+    pistolRight = pr.getImage();
+
+    // Starting with the right images
+    weaponLeft = shotgunLeft;
+    weaponRight = shotgunRight;
 
     // Not super sure if this is ok, should figure out if there is a better fix
     for(int i = 0; i < pelletCount; i++) {
@@ -199,32 +215,32 @@ public class Player extends PhysicsObject {
       }
 
     } 
-    // Shotgun 
-    else if(weapon == 1) {
+    // Weapon (not hands)
+    else if(weapon != 0) {
       // Draw behind player
       if(behind && weaponBehind) {
         // Draw the correct shotgun sprite depending on direction the player is looking
         if(centreMouseRad >= -Math.PI/2) {
-          animateShotgun(g2D, CANVAS_WIDTH, CANVAS_HEIGHT, shotgunRight);
+          animateWeapon(g2D, CANVAS_WIDTH, CANVAS_HEIGHT, weaponRight);
         }
         else if(centreMouseRad < -Math.PI/2) {
-          animateShotgun(g2D, CANVAS_WIDTH, CANVAS_HEIGHT, shotgunLeft);
+          animateWeapon(g2D, CANVAS_WIDTH, CANVAS_HEIGHT, weaponLeft);
         }
       }
       // Draw in front of player
       else if(!behind && !weaponBehind) {
         // Draw the correct shotgun sprite depending on direction the player is looking
         if(centreMouseRad <= Math.PI/2 && centreMouseRad > -Math.PI/2) {
-          animateShotgun(g2D, CANVAS_WIDTH, CANVAS_HEIGHT, shotgunRight);
+          animateWeapon(g2D, CANVAS_WIDTH, CANVAS_HEIGHT, weaponRight);
         }
         else if(centreMouseRad < -Math.PI/2 || centreMouseRad > Math.PI/2) {
-          animateShotgun(g2D, CANVAS_WIDTH, CANVAS_HEIGHT, shotgunLeft);
+          animateWeapon(g2D, CANVAS_WIDTH, CANVAS_HEIGHT, weaponLeft);
         }
       }
     }
   }
 
-  public void animateShotgun(Graphics2D g2D, int CANVAS_WIDTH, int CANVAS_HEIGHT, Image shotgun) {
+  public void animateWeapon(Graphics2D g2D, int CANVAS_WIDTH, int CANVAS_HEIGHT, Image img) {
     //Make a backup so that we can reset our graphics object after using it.
     AffineTransform backup = g2D.getTransform();
     //rx is the x coordinate for rotation, ry is the y coordinate for rotation, and angle
@@ -234,7 +250,7 @@ public class Player extends PhysicsObject {
     //Set our Graphics2D object to the transform
     g2D.setTransform(a);
     //Draw our image like normal
-    g2D.drawImage(shotgun, CANVAS_WIDTH/2, CANVAS_HEIGHT/2 - 8, null);
+    g2D.drawImage(img, CANVAS_WIDTH/2, CANVAS_HEIGHT/2 - 8, null);
     //Reset our graphics object so we can draw with it again.
     g2D.setTransform(backup);
   }
@@ -243,10 +259,10 @@ public class Player extends PhysicsObject {
     
     if(shootTimer == rateOfFire) {
       // Recoil force in opposite direction of player
-      addForce(new Vector2(10000, centreMouseRad - Math.PI));
+      addForce(new Vector2(recoil, centreMouseRad - Math.PI));
       
       // If the player has a shotgun
-      if(weapon == 1) {
+      if(pelletCount > 0) {
         double offset = 0;
         for(int i = 0; i < pelletCount; i++) {
           offset = (Math.random() - 0.5) * spread;
@@ -284,6 +300,39 @@ public class Player extends PhysicsObject {
       }
   }
   
+  public void switchWeapon(int weaponID) {
+    // Hands
+    if(weaponID == 0) {
+
+    }
+    // Pistol
+    else if(weaponID == 1) {
+      weapon = 1;
+      damage = 10;
+      range = 500;
+      rateOfFire = 0.2;
+      power = 5000;
+      pelletCount = 0;
+      spread = 0.05;
+      recoil = 5000;
+      weaponLeft = pistolLeft;
+      weaponRight = pistolRight;
+    }
+    // Shotgun
+    else if(weaponID == 2) {
+      weapon = 2;
+      damage = 10;
+      range = 500;
+      rateOfFire = 0.5;
+      power = 1000;
+      pelletCount = 5;
+      spread = 0.10;
+      recoil = 10000;
+      weaponLeft = shotgunLeft;
+      weaponRight = shotgunRight;
+    }
+  }
+
   public void calcPos(double deltaTime, Vector2 mousePos) {
     // Overrides Physics Object's calcPos
     // Y Axis

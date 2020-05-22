@@ -129,6 +129,8 @@ class MainGame extends JFrame implements ActionListener, MouseListener {
 
       // Change this to two once a menu screen is added
       currentScreen = 1;
+
+      //player.switchWeapon(1);
     }
 
     // Start screen (0)
@@ -174,7 +176,7 @@ class MainGame extends JFrame implements ActionListener, MouseListener {
         // Enemy/Bullet collisions
         
         // If the player is using a shotgun
-        if(player.weapon == 1) {
+        if(player.pelletCount > 0) {
           for(int i = 0; i < player.pelletCount; i++) {
             enemy1.collisionCheck(player.getCentre(), player.pellets[i]);
             g2D.drawLine((int)player.getCentre().x, (int)player.getCentre().y, (int)(player.pellets[i].x + player.getCentre().x), (int)(player.pellets[i].y + player.getCentre().y));
