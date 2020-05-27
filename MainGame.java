@@ -17,9 +17,7 @@ class MainGame extends JFrame implements ActionListener, MouseListener {
   
   Player player = new Player(new Vector2(0, 0), 64, 10);
   
-  ChasingEnemy enemy1 = new ChasingEnemy(new Vector2(100, 500), 40, 5);
-  
-  ChasingEnemy enemy2 = new ChasingEnemy(new Vector2(100, 400), 40, 5);
+  ChasingEnemy enemy1 = new ChasingEnemy(new Vector2(100, 500), 64, 5);
   
   boolean playerShooting = false;
   
@@ -155,9 +153,10 @@ class MainGame extends JFrame implements ActionListener, MouseListener {
 
       // Draws the player/enemies
       player.drawPlayer(g2D, CANVAS_WIDTH, CANVAS_HEIGHT);
+      enemy1.drawEnemy(g2D);
 
-      g2D.setColor(Color.RED);
-      g2D.fillOval((int)enemy1.p.x, (int)enemy1.p.y, enemy1.size, enemy1.size);
+      //g2D.setColor(Color.RED); // Hitbox of enemy
+      //g2D.drawOval((int)enemy1.p.x, (int)enemy1.p.y, (int)enemy1.size, (int)enemy1.size);
 
       // Manages collisions between the player and the enemies (should move elsewhere, enemy class?)
       if(VMath.getDistanceBetweenPoints(player.getCentre(), enemy1.getCentre()) < player.size/2 + enemy1.size/2) {
@@ -186,7 +185,6 @@ class MainGame extends JFrame implements ActionListener, MouseListener {
         // If the player is using any other gun
         else {
           enemy1.collisionCheck(player.getCentre(), player.bullet);
-          enemy2.collisionCheck(player.getCentre(), player.bullet);
           // Draws the bullet trail
           g2D.drawLine((int)player.getCentre().x, (int)player.getCentre().y, (int)(player.bullet.x + player.getCentre().x), (int)(player.bullet.y + player.getCentre().y));
         }
@@ -284,6 +282,24 @@ class MainGame extends JFrame implements ActionListener, MouseListener {
       }
       else {
         currentScreen = 1;
+      }
+    });
+    // Switch Weapons
+    // Switch to pistol
+    addKeyBinding(canvas, KeyEvent.VK_1, false, "Switch1", (evt) -> {
+      if(player.weapon != 1 && player.pistolAcquired) {
+        player.switchWeapon(1); 
+      }
+      else {
+        // Switch to hands
+      }
+    });
+    addKeyBinding(canvas, KeyEvent.VK_2, false, "Switch2", (evt) -> {
+      if(player.weapon != 2 && player.shotgunAcquired) {
+        player.switchWeapon(2); 
+      }
+      else {
+        // Switch to hands
       }
     });
   }

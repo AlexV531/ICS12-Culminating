@@ -8,7 +8,7 @@ public class Player extends PhysicsObject {
   Vector2 walkVelo = new Vector2();
   Vector2 walkAcc = new Vector2();
   double maxVelo = 300;
-  double maxAcc = 900;
+  double maxAcc = 1200;
   boolean mUp, mLeft, mDown, mRight, shooting;
   
   // Personal stats
@@ -20,7 +20,7 @@ public class Player extends PhysicsObject {
   Image playerLLImage, playerRLImage, playerLHImage, playerRHImage, shotgunLeft, shotgunRight, pistolLeft, pistolRight;
 
   // Animation Helpers
-  double legCount = 0;
+  int legCount = 0;
   double legModY, legModX, handModX = 0;
   boolean leftHandBehind, rightHandBehind= false;
   boolean weaponBehind = false;
@@ -30,13 +30,16 @@ public class Player extends PhysicsObject {
   int weapon = 2; // 0 == Hands, 1 == Pistol, 2 == Shotgun
   double damage = 10; // Damage done by bullet or pellet
   double range = 500; // Distance in pixels the bullet or pellets travel
-  double rateOfFire = 0.5; // Time in seconds it takes to shot again
+  double rateOfFire = 0.75; // Time in seconds it takes to shot again
   double power = 1000; // Force the enemy is knocked back with
-  int pelletCount = 5; // To disable pellets set to zero
+  int pelletCount = 4; // To disable pellets set to zero
   double spread = 0.10; // Affects how spread out the shotgun pellets are
   double recoil = 10000; // Force the player is pushed back
   Image weaponLeft;
   Image weaponRight;
+
+  boolean pistolAcquired = true;
+  boolean shotgunAcquired = true;
 
   // Shooting variables
   double shootTimer = 0;
@@ -311,25 +314,27 @@ public class Player extends PhysicsObject {
       damage = 10;
       range = 500;
       rateOfFire = 0.2;
-      power = 5000;
+      power = 3000;
       pelletCount = 0;
       spread = 0.05;
-      recoil = 5000;
+      recoil = 3000;
       weaponLeft = pistolLeft;
       weaponRight = pistolRight;
+      shootTimer = rateOfFire;
     }
     // Shotgun
     else if(weaponID == 2) {
       weapon = 2;
       damage = 10;
       range = 500;
-      rateOfFire = 0.5;
+      rateOfFire = 0.75;
       power = 1000;
-      pelletCount = 5;
+      pelletCount = 4;
       spread = 0.10;
       recoil = 10000;
       weaponLeft = shotgunLeft;
       weaponRight = shotgunRight;
+      shootTimer = rateOfFire;
     }
   }
 
@@ -426,6 +431,7 @@ public class Player extends PhysicsObject {
 
     // Adds the walking velocity to the physics position
     p = VMath.addVectors(VMath.multiplyByScalar(walkVelo, deltaTime), p);
+    
     super.calcPos(deltaTime);
   }
   
