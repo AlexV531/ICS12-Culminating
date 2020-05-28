@@ -9,7 +9,7 @@ public class Player extends PhysicsObject {
   Vector2 walkAcc = new Vector2();
   double maxVelo = 300;
   double maxAcc = 1200;
-  boolean mUp, mLeft, mDown, mRight, shooting;
+  boolean mUp, mLeft, mDown, mRight;
   
   // Personal stats
   double hp = 100;
@@ -27,14 +27,14 @@ public class Player extends PhysicsObject {
   boolean handsShown = false;
   
   // Weapon stats
-  int weapon = 2; // 0 == Hands, 1 == Pistol, 2 == Shotgun
-  double damage = 10; // Damage done by bullet or pellet
-  double range = 500; // Distance in pixels the bullet or pellets travel
-  double rateOfFire = 0.75; // Time in seconds it takes to shot again
-  double power = 1000; // Force the enemy is knocked back with
-  int pelletCount = 4; // To disable pellets set to zero
-  double spread = 0.10; // Affects how spread out the shotgun pellets are
-  double recoil = 10000; // Force the player is pushed back
+  int weapon; // 0 == Hands, 1 == Pistol, 2 == Shotgun
+  double damage; // Damage done by bullet or pellet
+  double range; // Distance in pixels the bullet or pellets travel
+  double rateOfFire; // Time in seconds it takes to shot again
+  double power; // Force the enemy is knocked back with
+  int pelletCount; // To disable pellets set to zero
+  double spread; // Affects how spread out the shotgun pellets are
+  double recoil; // Force the player is pushed back
   Image weaponLeft;
   Image weaponRight;
 
@@ -44,8 +44,9 @@ public class Player extends PhysicsObject {
   // Shooting variables
   double shootTimer = 0;
   Vector2 bullet = new Vector2();
-  Vector2[] pellets = new Vector2[pelletCount];
+  Vector2[] pellets;
   double centreMouseRad = 0;
+  boolean shootingPing = false;
   
   public Player() { 
     super(new Vector2(0, 0), 0, 0);
@@ -90,14 +91,7 @@ public class Player extends PhysicsObject {
     ImageIcon pr = new ImageIcon("images/PistolRight.png");
     pistolRight = pr.getImage();
 
-    // Starting with the right images
-    weaponLeft = shotgunLeft;
-    weaponRight = shotgunRight;
-
-    // Not super sure if this is ok, should figure out if there is a better fix
-    for(int i = 0; i < pelletCount; i++) {
-      pellets[i] = new Vector2();
-    }
+    
   }
   
   public Vector2 getCentre() {
@@ -258,11 +252,15 @@ public class Player extends PhysicsObject {
     g2D.setTransform(backup);
   }
 
-  public void shoot() {
+  public void shoot(Graphics2D g2D) {
     
     if(shootTimer == rateOfFire) {
       // Recoil force in opposite direction of player
       addForce(new Vector2(recoil, centreMouseRad - Math.PI));
+      // For drawing the bullet trails later
+      g2D.setColor(Color.WHITE);
+
+      shootingPing = true;
       
       // If the player has a shotgun
       if(pelletCount > 0) {
@@ -273,6 +271,8 @@ public class Player extends PhysicsObject {
           pellets[i].y = centreMouseRad + offset;
           
           pellets[i] = VMath.polarToCart(pellets[i]);
+          // Draws the pellet trails
+          g2D.drawLine((int)getCentre().x, (int)getCentre().y, (int)(pellets[i].x + getCentre().x), (int)(pellets[i].y + getCentre().y));
         }
       } 
       
@@ -284,6 +284,8 @@ public class Player extends PhysicsObject {
         bullet.y = centreMouseRad;
         // Bullet Vector (cartesian)
         bullet = VMath.polarToCart(bullet);
+        // Bullet trail
+        g2D.drawLine((int)getCentre().x, (int)getCentre().y, (int)(bullet.x + getCentre().x), (int)(bullet.y + getCentre().y));
       }
       
 
@@ -296,17 +298,17 @@ public class Player extends PhysicsObject {
   private void shootTimer(double deltaTime) {
     
     if(shootTimer < rateOfFire) {
-        shootTimer += deltaTime;
-        if(shootTimer > rateOfFire) {
-          shootTimer = rateOfFire;
-        }
+      shootTimer += deltaTime;
+      if(shootTimer > rateOfFire) {
+        shootTimer = rateOfFire;
       }
+    }
   }
   
   public void switchWeapon(int weaponID) {
     // Hands
     if(weaponID == 0) {
-
+      weapon = 0;
     }
     // Pistol
     else if(weaponID == 1) {
@@ -328,13 +330,18 @@ public class Player extends PhysicsObject {
       damage = 10;
       range = 500;
       rateOfFire = 0.75;
-      power = 1000;
+      power = 1500;
       pelletCount = 4;
       spread = 0.10;
       recoil = 10000;
       weaponLeft = shotgunLeft;
       weaponRight = shotgunRight;
       shootTimer = rateOfFire;
+      pellets = new Vector2[pelletCount];
+      // Not super sure if this is ok, should figure out if there is a better fix
+      for(int i = 0; i < pelletCount; i++) {
+        pellets[i] = new Vector2();
+      }
     }
   }
 

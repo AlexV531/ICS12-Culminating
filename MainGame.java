@@ -16,8 +16,11 @@ class MainGame extends JFrame implements ActionListener, MouseListener {
   JButton btnQ1, btnQ2, btnQ3, btnExit;
   
   Player player = new Player(new Vector2(0, 0), 64, 10);
-  
-  ChasingEnemy enemy1 = new ChasingEnemy(new Vector2(100, 500), 64, 5);
+
+  // Rest in peace enemy1, you will be missed
+  //ChasingEnemy enemy1 = new ChasingEnemy(new Vector2(100, 500), 64, 5); 
+
+  EnemyManager enemyManager = new EnemyManager();
   
   boolean playerShooting = false;
   
@@ -59,7 +62,7 @@ class MainGame extends JFrame implements ActionListener, MouseListener {
   
   public void mousePressed(MouseEvent e) {
     // During game screen
-    if(currentScreen == 1) {
+    if(currentScreen == 1 && player.weapon != 0) {
       if(player.shootTimer == player.rateOfFire) {
         playerShooting = true;
       }
@@ -123,12 +126,12 @@ class MainGame extends JFrame implements ActionListener, MouseListener {
       defineKeyBindings();
 
       // Gives enemies a reference to the player
-      enemy1.chooseTarget(player);
+      enemyManager.chooseAllTargets(player);
 
-      // Change this to two once a menu screen is added
+      player.switchWeapon(2);
+      // Change this to zero once a menu screen is added
       currentScreen = 1;
 
-      //player.switchWeapon(1);
     }
 
     // Start screen (0)
@@ -140,7 +143,8 @@ class MainGame extends JFrame implements ActionListener, MouseListener {
     public void gameScreen(Graphics2D g2D) {
       // Updates the player/enemy positions
       player.calcPos(deltaTime, mousePos);
-      enemy1.calcPos(deltaTime);
+
+      enemyManager.calcPos(deltaTime);
       
       // Moves the camera to focus on player
       g2D.translate((int)-(player.getCentre().x - CANVAS_WIDTH/2), (int)-(player.getCentre().y - CANVAS_HEIGHT/2));
@@ -153,11 +157,12 @@ class MainGame extends JFrame implements ActionListener, MouseListener {
 
       // Draws the player/enemies
       player.drawPlayer(g2D, CANVAS_WIDTH, CANVAS_HEIGHT);
-      enemy1.drawEnemy(g2D);
+
+      enemyManager.drawEnemies(g2D);
 
       //g2D.setColor(Color.RED); // Hitbox of enemy
       //g2D.drawOval((int)enemy1.p.x, (int)enemy1.p.y, (int)enemy1.size, (int)enemy1.size);
-
+      /*
       // Manages collisions between the player and the enemies (should move elsewhere, enemy class?)
       if(VMath.getDistanceBetweenPoints(player.getCentre(), enemy1.getCentre()) < player.size/2 + enemy1.size/2) {
         
@@ -165,30 +170,11 @@ class MainGame extends JFrame implements ActionListener, MouseListener {
         enemy1.addForce(new Vector2(2000, VMath.getAngleBetweenPoints(player.getCentre(), enemy1.getCentre())));
         
       }
+      */
       // Manages player shooting (should try to move to Keybinding once I have a Start method)
       if(playerShooting) {
         // Player's shoot method
-        player.shoot();
-        // Used when drawing the bullet trails
-        g2D.setColor(Color.WHITE);
-
-        // Enemy/Bullet collisions
-        
-        // If the player is using a shotgun
-        if(player.pelletCount > 0) {
-          for(int i = 0; i < player.pelletCount; i++) {
-            enemy1.collisionCheck(player.getCentre(), player.pellets[i]);
-            g2D.drawLine((int)player.getCentre().x, (int)player.getCentre().y, (int)(player.pellets[i].x + player.getCentre().x), (int)(player.pellets[i].y + player.getCentre().y));
-          }
-        }
-        
-        // If the player is using any other gun
-        else {
-          enemy1.collisionCheck(player.getCentre(), player.bullet);
-          // Draws the bullet trail
-          g2D.drawLine((int)player.getCentre().x, (int)player.getCentre().y, (int)(player.bullet.x + player.getCentre().x), (int)(player.bullet.y + player.getCentre().y));
-        }
-        
+        player.shoot(g2D);
         playerShooting = false;
       }
     }
@@ -291,7 +277,7 @@ class MainGame extends JFrame implements ActionListener, MouseListener {
         player.switchWeapon(1); 
       }
       else {
-        // Switch to hands
+        player.switchWeapon(0); 
       }
     });
     addKeyBinding(canvas, KeyEvent.VK_2, false, "Switch2", (evt) -> {
@@ -299,7 +285,7 @@ class MainGame extends JFrame implements ActionListener, MouseListener {
         player.switchWeapon(2); 
       }
       else {
-        // Switch to hands
+        player.switchWeapon(0); 
       }
     });
   }

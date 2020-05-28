@@ -9,6 +9,8 @@ public class ChasingEnemy extends PhysicsObject {
   static double maxSpeed = 100;
   double hp = 10;
 
+  Vector2 spawnPoint;
+  
   // Animation Variables
   int legCount = 0;
   double legModY = 0;
@@ -17,6 +19,8 @@ public class ChasingEnemy extends PhysicsObject {
   public ChasingEnemy(Vector2 startPos, int s, double mass) { 
     super(startPos, s, mass);
     
+    spawnPoint = startPos;
+
     ImageIcon eL = new ImageIcon("images/Possessed01-Left.png");
     possessedLeft = eL.getImage();
     ImageIcon eR = new ImageIcon("images/Possessed01-Right.png");
@@ -67,11 +71,40 @@ public class ChasingEnemy extends PhysicsObject {
     velo.y = VMath.getAngleBetweenPoints(getCentre(), target.getCentre());
     
     p = VMath.addVectors(VMath.polarToCart(velo), p);
+    /*
+    if(target.shootingPing == true) {
+      System.out.println("player shot detected");
+      target.shootingPing = false;
+      enemyHitCheck();
+    }
+    */
+
+    // Manages collisions between the player and the enemies (should move elsewhere, enemy class?)
+    if(VMath.getDistanceBetweenPoints(target.getCentre(), getCentre()) < target.size/2 + size/2) {
+        
+      target.addForce(new Vector2(6000, VMath.getAngleBetweenPoints(getCentre(), target.getCentre())));
+      addForce(new Vector2(2000, VMath.getAngleBetweenPoints(target.getCentre(), getCentre())));
+      
+    }
 
     super.calcPos(deltaTime);
     
   }
   
+  public void enemyHitCheck() {
+    // If the player is using a shotgun
+    if(target.pelletCount > 0) {
+      for(int i = 0; i < target.pelletCount; i++) {
+        collisionCheck(target.getCentre(), target.pellets[i]);
+      }
+    }
+    
+    // If the player is using any other gun
+    else {
+      collisionCheck(target.getCentre(), target.bullet);
+    }
+  }
+
   public void collisionCheck(Vector2 playerPos, Vector2 bullet) {
     
     Vector2 bulletPos = new Vector2();
