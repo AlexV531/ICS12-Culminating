@@ -15,6 +15,11 @@ public class Vector2 {
     this.y = y;
     
   }
+
+  public void setToZero() {
+    x = 0;
+    y = 0;
+  }
   
   public String toString() {
     

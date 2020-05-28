@@ -9,6 +9,8 @@ public class ChasingEnemy extends PhysicsObject {
   static double maxSpeed = 100;
   double hp = 10;
 
+  boolean dead = false;
+
   Vector2 spawnPoint;
   
   // Animation Variables
@@ -36,6 +38,10 @@ public class ChasingEnemy extends PhysicsObject {
   
   public void drawEnemy(Graphics2D g2D) {
    
+    if(dead) {
+      return;
+    }
+
     legCount++;
     if(legCount > 10000) {
       legCount = 0;
@@ -66,6 +72,10 @@ public class ChasingEnemy extends PhysicsObject {
   }
   
   public void calcPos(double deltaTime) {
+
+    if(dead) {
+      return;
+    }
     
     velo.x = maxSpeed * deltaTime;
     velo.y = VMath.getAngleBetweenPoints(getCentre(), target.getCentre());
@@ -87,6 +97,10 @@ public class ChasingEnemy extends PhysicsObject {
       
     }
 
+    if(hp <= 0) {
+      dead = true;
+    }
+    
     super.calcPos(deltaTime);
     
   }
@@ -118,6 +132,15 @@ public class ChasingEnemy extends PhysicsObject {
       // adds a force to the enemy
       addForce(new Vector2(target.power, VMath.getAngleBetweenPoints(playerPos, bulletPos)));
     }
+  }
+
+  public void respawn() {
+    hp = 10;
+    dead = false;
+    p.x = spawnPoint.x;
+    p.y = spawnPoint.y;
+    v.setToZero();
+    a.setToZero();
   }
   
   

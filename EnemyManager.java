@@ -50,4 +50,10 @@ public class EnemyManager {
         }
     }
 
+    public void respawnAll() {
+        for(int i = 0; i < maxChasingEnemies; i++) {
+            enemyList[i].respawn();
+        }
+    }
+
 }
