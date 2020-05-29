@@ -289,8 +289,8 @@ class MainGame extends JFrame implements ActionListener, MouseListener {
       }
     });
 
-    addKeyBinding(canvas, KeyEvent.VK_G, false, "RespawnEnemies", (evt) -> {
-      enemyManager.respawnAll();
+    addKeyBinding(canvas, KeyEvent.VK_G, false, "SpawnEnemies", (evt) -> {
+      enemyManager.spawnAll();
     });
   }
   

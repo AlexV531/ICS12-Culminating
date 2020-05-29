@@ -1,7 +1,8 @@
 import javax.swing.*;
 import java.awt.*;
+import java.util.*;
 
-public class ChasingEnemy extends PhysicsObject {
+public class Enemy extends PhysicsObject {
   
   Player target = new Player();
   
@@ -9,16 +10,22 @@ public class ChasingEnemy extends PhysicsObject {
   static double maxSpeed = 100;
   double hp = 10;
 
-  boolean dead = false;
+  boolean dead = true;
 
   Vector2 spawnPoint;
   
+  static int enemiesShot; // Counts how many enemies are shot this frame
+
   // Animation Variables
   int legCount = 0;
   double legModY = 0;
   Image possessedLeft, possessedRight, possessedLL, possessedRL, currentImage;
+
+  // Bullet Trail Variables(This is jank maybe remove later)
+  ArrayList<Vector2> bulletPoints = new ArrayList<Vector2>();
+
   
-  public ChasingEnemy(Vector2 startPos, int s, double mass) { 
+  public Enemy(Vector2 startPos, int s, double mass) { 
     super(startPos, s, mass);
     
     spawnPoint = startPos;
@@ -59,6 +66,7 @@ public class ChasingEnemy extends PhysicsObject {
     g2D.drawImage(possessedRL, (int)(p.x), (int)(p.y - legModY), null);
 
     g2D.drawImage(currentImage, (int)p.x, (int)p.y, null);
+
   }
 
   public void chooseTarget(Player player) {
@@ -81,13 +89,6 @@ public class ChasingEnemy extends PhysicsObject {
     velo.y = VMath.getAngleBetweenPoints(getCentre(), target.getCentre());
     
     p = VMath.addVectors(VMath.polarToCart(velo), p);
-    /*
-    if(target.shootingPing == true) {
-      System.out.println("player shot detected");
-      target.shootingPing = false;
-      enemyHitCheck();
-    }
-    */
 
     // Manages collisions between the player and the enemies (should move elsewhere, enemy class?)
     if(VMath.getDistanceBetweenPoints(target.getCentre(), getCentre()) < target.size/2 + size/2) {
@@ -99,42 +100,33 @@ public class ChasingEnemy extends PhysicsObject {
 
     if(hp <= 0) {
       dead = true;
+      p.x = 2000;
+      p.y = 2000;
     }
-    
+
     super.calcPos(deltaTime);
     
   }
-  
-  public void enemyHitCheck() {
-    // If the player is using a shotgun
-    if(target.pelletCount > 0) {
-      for(int i = 0; i < target.pelletCount; i++) {
-        collisionCheck(target.getCentre(), target.pellets[i]);
-      }
-    }
-    
-    // If the player is using any other gun
-    else {
-      collisionCheck(target.getCentre(), target.bullet);
-    }
-  }
 
-  public void collisionCheck(Vector2 playerPos, Vector2 bullet) {
+  public double collisionCheck(Vector2 playerPos, Vector2 bullet) {
     
     Vector2 bulletPos = new Vector2();
     
     bulletPos.x = playerPos.x + bullet.x;
     bulletPos.y = playerPos.y + bullet.y;
     
-    if(VMath.lineCircle(playerPos, bulletPos, getCentre(), size/2)) {
-      // subtracts health
+    if(VMath.lineCircle(playerPos, bulletPos, getCentre(), size/2) && enemiesShot <= target.piercing) {
+      enemiesShot++;
+      // Subtracts health
       hp -= target.damage;
-      // adds a force to the enemy
+      // Adds a force to the enemy
       addForce(new Vector2(target.power, VMath.getAngleBetweenPoints(playerPos, bulletPos)));
+      return VMath.getDistanceBetweenPoints(target.p, p);
     }
+    return 0;
   }
 
-  public void respawn() {
+  public void spawn() {
     hp = 10;
     dead = false;
     p.x = spawnPoint.x;
@@ -143,6 +135,9 @@ public class ChasingEnemy extends PhysicsObject {
     a.setToZero();
   }
   
+  public String toString() {
+    return "" + VMath.getDistanceBetweenPoints(target.p, p);
+  }
   
   
   

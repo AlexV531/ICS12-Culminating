@@ -35,6 +35,7 @@ public class Player extends PhysicsObject {
   int pelletCount; // To disable pellets set to zero
   double spread; // Affects how spread out the shotgun pellets are
   double recoil; // Force the player is pushed back
+  int piercing; // Number of enemies the bullet goes through
   Image weaponLeft;
   Image weaponRight;
 
@@ -272,7 +273,7 @@ public class Player extends PhysicsObject {
           
           pellets[i] = VMath.polarToCart(pellets[i]);
           // Draws the pellet trails
-          g2D.drawLine((int)getCentre().x, (int)getCentre().y, (int)(pellets[i].x + getCentre().x), (int)(pellets[i].y + getCentre().y));
+          //g2D.drawLine((int)getCentre().x, (int)getCentre().y, (int)(pellets[i].x + getCentre().x), (int)(pellets[i].y + getCentre().y));
         }
       } 
       
@@ -285,7 +286,7 @@ public class Player extends PhysicsObject {
         // Bullet Vector (cartesian)
         bullet = VMath.polarToCart(bullet);
         // Bullet trail
-        g2D.drawLine((int)getCentre().x, (int)getCentre().y, (int)(bullet.x + getCentre().x), (int)(bullet.y + getCentre().y));
+        //g2D.drawLine((int)getCentre().x, (int)getCentre().y, (int)(bullet.x + getCentre().x), (int)(bullet.y + getCentre().y));
       }
       
 
@@ -320,6 +321,7 @@ public class Player extends PhysicsObject {
       pelletCount = 0;
       spread = 0.05;
       recoil = 3000;
+      piercing = 1;
       weaponLeft = pistolLeft;
       weaponRight = pistolRight;
       shootTimer = rateOfFire;
@@ -334,6 +336,7 @@ public class Player extends PhysicsObject {
       pelletCount = 4;
       spread = 0.10;
       recoil = 10000;
+      piercing = 0;
       weaponLeft = shotgunLeft;
       weaponRight = shotgunRight;
       shootTimer = rateOfFire;
