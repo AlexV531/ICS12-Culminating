@@ -4,14 +4,26 @@ public class EnemyManager {
     
     static Player target = new Player();
 
+    static int totalEnemiesDead = 0;
     static int waveIntensity = 0;
-    static int maxChasingEnemies = 4;
-    static Enemy[] enemyList = new Enemy[maxChasingEnemies];
+    static int maxEnemies = 12;
+    static Enemy[] enemyList = new Enemy[maxEnemies];
+    static Enemy[] enemyListSorted = new Enemy[maxEnemies]; // Used to keep the enemyList unscrambled
     static Vector2[] spawnPointList = new Vector2[4];
     // Used to draw bullet trails
     static double maxDistance;
+    // Wave managment varibles
+    static double currentTime = 0; // Used to have a delay between waves
+    static boolean respawnInProgress = false;
+    static int roundCount = 0; // Used to keep track of the rounds
+    static int waveCount = 0; // Used to keep track of the waves
+    static int targetTime = 5;
 
     public EnemyManager() {
+
+    }
+
+    public static void createEnemies() {
         // Top Left
         spawnPointList[0] = new Vector2(-500, -500);
         // Bottom Left
@@ -20,32 +32,32 @@ public class EnemyManager {
         spawnPointList[2] = new Vector2(500, -500);
         // Bottom Right
         spawnPointList[3] = new Vector2(500, 500);
-
-
-        for(int i = 0; i < maxChasingEnemies; i++) {
+        // Creates the enemies according to the parameters
+        for(int i = 0; i < maxEnemies; i++) {
             enemyList[i] = new Enemy(spawnPointList[i % spawnPointList.length], 64, 5);
+            enemyListSorted[i] = enemyList[i];
         }
     }
 
-    public void calcPos(double deltaTime) {
+    public static void calcPos(double deltaTime) {
+        // Respawn in progress
+        if(respawnInProgress) {
+            // Spawns all enemies
+            spawnAll(deltaTime);
+        }
         if(target.shootingPing == true) {
             bubbleSort();
-            //for(int i = 0; i < maxChasingEnemies; i++) {
-            //    System.out.println(enemyList[i].toString());
-            //}
-            //System.out.println("player shot detected");
-            
             // The way the pellets bullet trails are calculated means that they are treated as one bullet.
             // If the pellets are ever changed to be treated as multiple bullets that can hit multiple enemeies,
             // This will need to change as well
-
             double currentDistance = 0;
+            maxDistance = 0;
             // If the player is using a shotgun
             // Checks every enemy with every pellet
             if(target.pelletCount > 0) {
-                for(int i = 0; i < maxChasingEnemies; i++) {
+                for(int i = 0; i < maxEnemies; i++) {
                     for(int j = 0; j < target.pelletCount; j++) {
-                        currentDistance = enemyList[i].collisionCheck(target.getCentre(), target.pellets[j]);
+                        currentDistance = enemyListSorted[i].collisionCheck(target.getCentre(), target.pellets[j]);
                         if(currentDistance > maxDistance) {
                             maxDistance = currentDistance;
                         }
@@ -56,18 +68,18 @@ public class EnemyManager {
             // If the player is using any other gun
             // Checks every enemy with the bullet
             else {
-                for(int i = 0; i < maxChasingEnemies; i++) {
-                    currentDistance = enemyList[i].collisionCheck(target.getCentre(), target.bullet);
+                for(int i = 0; i < maxEnemies; i++) {
+                    currentDistance = enemyListSorted[i].collisionCheck(target.getCentre(), target.bullet);
                     if(currentDistance > maxDistance) {
                         maxDistance = currentDistance;
                     }
                 }
             }
             // If the bullet doesn't hit an enemy, it's distance traveled is equal to it's range
-            if(maxDistance == 0) {
+            if(maxDistance == 0 || maxDistance > target.range) {
                 maxDistance = target.range;
             }
-            System.out.println(maxDistance);
+            //System.out.println(maxDistance);
 
             // shootingPing is not reset until the draw phase to include the bullet trails
             
@@ -75,13 +87,13 @@ public class EnemyManager {
             Enemy.enemiesShot = 0;
         }
 
-        for(int i = 0; i < maxChasingEnemies; i++) {
+        for(int i = 0; i < maxEnemies; i++) {
             enemyList[i].calcPos(deltaTime);
         }
     }
 
-    public void drawEnemies(Graphics2D g2D) {
-        for(int i = 0; i < maxChasingEnemies; i++) {
+    public static void drawEnemies(Graphics2D g2D) {
+        for(int i = 0; i < maxEnemies; i++) {
             enemyList[i].drawEnemy(g2D);
         }
 
@@ -109,18 +121,39 @@ public class EnemyManager {
         }
     }
     // Change to a static in the enemy class
-    public void chooseAllTargets(Player player) {
+    public static void chooseAllTargets(Player player) {
         target = player;
-        for(int i = 0; i < maxChasingEnemies; i++) {
-            enemyList[i].chooseTarget(player);
+        Enemy.target = player;
+    }
+    public static void spawnAll(double deltaTime) {
+        currentTime += deltaTime;
+        //System.out.println(currentTime);
+        
+        if(currentTime >= targetTime) {
+            targetTime = 5;
+            for(int i = 0; i < 4; i++) {
+                enemyList[i + (roundCount * 4)].spawn();
+            }
+            if(roundCount >= maxEnemies/4 - 1) {
+                respawnInProgress = false;
+                roundCount = 0;
+                targetTime = 15;
+            } 
+            else {
+                roundCount++;
+            }
+            currentTime = 0;
+        }
+    }
+    // Called in the enemy class to keep track of how many enemies are dead
+    public static void enemyDead() {
+        totalEnemiesDead++;
+        if(totalEnemiesDead >= (maxEnemies/4)*4) {
+            respawnInProgress = true;
+            totalEnemiesDead = 0;
         }
     }
 
-    public void spawnAll() {
-        for(int i = 0; i < enemyList.length; i++) {
-            enemyList[i].spawn();
-        }
-    }
     // Sorts the enemies into a list based on how far they are from the player
     public static void bubbleSort() {
         boolean sorted = false;
@@ -128,10 +161,10 @@ public class EnemyManager {
         while(!sorted) {
             sorted = true;
             for (int i = 0; i < enemyList.length - 1; i++) {
-                if (VMath.getDistanceBetweenPoints(target.p, enemyList[i].p) > VMath.getDistanceBetweenPoints(target.p, enemyList[i+1].p)) {
-                    temp = enemyList[i];
-                    enemyList[i] = enemyList[i+1];
-                    enemyList[i+1] = temp;
+                if (VMath.getDistanceBetweenPoints(target.p, enemyListSorted[i].p) > VMath.getDistanceBetweenPoints(target.p, enemyListSorted[i+1].p)) {
+                    temp = enemyListSorted[i];
+                    enemyListSorted[i] = enemyListSorted[i+1];
+                    enemyListSorted[i+1] = temp;
                     sorted = false;
                 }
             }

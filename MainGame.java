@@ -19,8 +19,6 @@ class MainGame extends JFrame implements ActionListener, MouseListener {
 
   // Rest in peace enemy1, you will be missed
   //ChasingEnemy enemy1 = new ChasingEnemy(new Vector2(100, 500), 64, 5); 
-
-  EnemyManager enemyManager = new EnemyManager();
   
   boolean playerShooting = false;
   
@@ -123,14 +121,16 @@ class MainGame extends JFrame implements ActionListener, MouseListener {
     public void gameSetup() {
       System.out.println("GameSetup");
       // Key Bindings
-      defineKeyBindings();
+      defineKeyBindings(deltaTime);
 
       // Gives enemies a reference to the player
-      enemyManager.chooseAllTargets(player);
+      EnemyManager.chooseAllTargets(player);
 
       player.switchWeapon(2);
       // Change this to zero once a menu screen is added
       currentScreen = 1;
+
+      EnemyManager.createEnemies();
 
     }
 
@@ -142,9 +142,11 @@ class MainGame extends JFrame implements ActionListener, MouseListener {
     // Game screen (1)
     public void gameScreen(Graphics2D g2D) {
       // Updates the player/enemy positions
-      player.calcPos(deltaTime, mousePos);
+      if(!player.calcPos(deltaTime, mousePos)) {
+        currentScreen = 3;
+      }
 
-      enemyManager.calcPos(deltaTime);
+      EnemyManager.calcPos(deltaTime);
       
       // Moves the camera to focus on player
       g2D.translate((int)-(player.getCentre().x - CANVAS_WIDTH/2), (int)-(player.getCentre().y - CANVAS_HEIGHT/2));
@@ -158,19 +160,10 @@ class MainGame extends JFrame implements ActionListener, MouseListener {
       // Draws the player/enemies
       player.drawPlayer(g2D, CANVAS_WIDTH, CANVAS_HEIGHT);
 
-      enemyManager.drawEnemies(g2D);
+      EnemyManager.drawEnemies(g2D);
 
       //g2D.setColor(Color.RED); // Hitbox of enemy
       //g2D.drawOval((int)enemy1.p.x, (int)enemy1.p.y, (int)enemy1.size, (int)enemy1.size);
-      /*
-      // Manages collisions between the player and the enemies (should move elsewhere, enemy class?)
-      if(VMath.getDistanceBetweenPoints(player.getCentre(), enemy1.getCentre()) < player.size/2 + enemy1.size/2) {
-        
-        player.addForce(new Vector2(6000, VMath.getAngleBetweenPoints(enemy1.getCentre(), player.getCentre())));
-        enemy1.addForce(new Vector2(2000, VMath.getAngleBetweenPoints(player.getCentre(), enemy1.getCentre())));
-        
-      }
-      */
       // Manages player shooting (should try to move to Keybinding once I have a Start method)
       if(playerShooting) {
         // Player's shoot method
@@ -185,6 +178,10 @@ class MainGame extends JFrame implements ActionListener, MouseListener {
       g2D.setColor(new Color(255, 0, 0));
 
       g2D.drawImage(pauseScreen, 0, 0, null);
+
+    }
+
+    public void loseScreen(Graphics2D g2D) {
 
     }
 
@@ -228,10 +225,13 @@ class MainGame extends JFrame implements ActionListener, MouseListener {
       else if(currentScreen == 2) {
         pauseScreen(g2D);
       }
+      else if(currentScreen == 3) {
+        loseScreen(g2D);
+      }
     }    
   }
 
-  public void defineKeyBindings() {
+  public void defineKeyBindings(double deltaTime) {
     // Key Bindings (True: on key release False: on key press)
     // Move up
     addKeyBinding(canvas, KeyEvent.VK_W, false, "MoveUp", (evt) -> {
@@ -290,7 +290,7 @@ class MainGame extends JFrame implements ActionListener, MouseListener {
     });
 
     addKeyBinding(canvas, KeyEvent.VK_G, false, "SpawnEnemies", (evt) -> {
-      enemyManager.spawnAll();
+      EnemyManager.respawnInProgress = true;
     });
   }
   

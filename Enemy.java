@@ -4,17 +4,17 @@ import java.util.*;
 
 public class Enemy extends PhysicsObject {
   
-  Player target = new Player();
+  static Player target = new Player();
   
   Vector2 velo = new Vector2();
-  static double maxSpeed = 100;
+  static double maxSpeed = 150;
   double hp = 10;
 
   boolean dead = true;
 
   Vector2 spawnPoint;
   
-  static int enemiesShot; // Counts how many enemies are shot this frame
+  static int enemiesShot = 0; // Counts how many enemies are shot this frame
 
   // Animation Variables
   int legCount = 0;
@@ -102,6 +102,9 @@ public class Enemy extends PhysicsObject {
       dead = true;
       p.x = 2000;
       p.y = 2000;
+      // Adds to the enemies death count
+      EnemyManager.enemyDead();
+      //System.out.println("Enemy killed");
     }
 
     super.calcPos(deltaTime);
@@ -114,13 +117,15 @@ public class Enemy extends PhysicsObject {
     
     bulletPos.x = playerPos.x + bullet.x;
     bulletPos.y = playerPos.y + bullet.y;
-    
+    //System.out.println(enemiesShot);
     if(VMath.lineCircle(playerPos, bulletPos, getCentre(), size/2) && enemiesShot <= target.piercing) {
+      // For calculating bullets piercing enemies
       enemiesShot++;
       // Subtracts health
       hp -= target.damage;
       // Adds a force to the enemy
       addForce(new Vector2(target.power, VMath.getAngleBetweenPoints(playerPos, bulletPos)));
+      
       return VMath.getDistanceBetweenPoints(target.p, p);
     }
     return 0;
@@ -133,6 +138,7 @@ public class Enemy extends PhysicsObject {
     p.y = spawnPoint.y;
     v.setToZero();
     a.setToZero();
+    dead = false;
   }
   
   public String toString() {

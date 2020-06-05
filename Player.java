@@ -314,7 +314,7 @@ public class Player extends PhysicsObject {
     // Pistol
     else if(weaponID == 1) {
       weapon = 1;
-      damage = 10;
+      damage = 5;
       range = 500;
       rateOfFire = 0.2;
       power = 3000;
@@ -348,7 +348,11 @@ public class Player extends PhysicsObject {
     }
   }
 
-  public void calcPos(double deltaTime, Vector2 mousePos) {
+  public boolean calcPos(double deltaTime, Vector2 mousePos) {
+    
+    if(hp <= 0) {
+      return false;
+    }
     // Overrides Physics Object's calcPos
     // Y Axis
     if(mUp == true) {
@@ -443,6 +447,7 @@ public class Player extends PhysicsObject {
     p = VMath.addVectors(VMath.multiplyByScalar(walkVelo, deltaTime), p);
     
     super.calcPos(deltaTime);
+    return true;
   }
   
 }
