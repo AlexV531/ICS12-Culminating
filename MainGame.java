@@ -112,6 +112,9 @@ class MainGame extends JFrame implements ActionListener, MouseListener {
     double deltaTime = 0;
 
     Vector2 mousePos = new Vector2();
+    // For the mouse position when in menus
+    Vector2 mousePosUI = new Vector2();
+
 
     private long lastTime = System.currentTimeMillis();
     private long time;
@@ -127,17 +130,28 @@ class MainGame extends JFrame implements ActionListener, MouseListener {
       EnemyManager.chooseAllTargets(player);
 
       player.switchWeapon(2);
+      
+
+      UIManager.addButton(new Vector2(100, 100), new Vector2(500, 200), 0, 0, "Test Button");
+      
+      EnemyManager.createEnemies();
+
       // Change this to zero once a menu screen is added
       currentScreen = 1;
-
-      EnemyManager.createEnemies();
 
     }
 
     // Start screen (0)
     public void startScreen(Graphics2D g2D) {
       
-      
+      mousePosUI.x = mousePos.x + CANVAS_WIDTH/2 - player.getCentre().x;
+      mousePosUI.y = mousePos.y + CANVAS_HEIGHT/2 - player.getCentre().y;
+
+      // If this breaks after a game restart, reset the position of the player.
+      UIManager.buttonCheck(currentScreen, mousePosUI, false);
+
+      UIManager.drawButtons(g2D, currentScreen);
+
     }
     // Game screen (1)
     public void gameScreen(Graphics2D g2D) {
@@ -178,6 +192,12 @@ class MainGame extends JFrame implements ActionListener, MouseListener {
       g2D.setColor(new Color(255, 0, 0));
 
       g2D.drawImage(pauseScreen, 0, 0, null);
+      /*
+      Font h = new Font("Helvetica", Font.PLAIN, 24);
+
+      g2D.setFont(h);
+      g2D.drawString("Font Test", 100, 100);
+      */
 
     }
 
@@ -228,6 +248,9 @@ class MainGame extends JFrame implements ActionListener, MouseListener {
       else if(currentScreen == 3) {
         loseScreen(g2D);
       }
+
+      
+
     }    
   }
 
