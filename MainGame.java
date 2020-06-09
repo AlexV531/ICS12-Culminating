@@ -19,8 +19,8 @@ class MainGame extends JFrame implements ActionListener, MouseListener {
 
   // Rest in peace enemy1, you will be missed
   //ChasingEnemy enemy1 = new ChasingEnemy(new Vector2(100, 500), 64, 5); 
-  
-  boolean playerShooting = false;
+
+  boolean mousePressed = false;
   
   int currentScreen = -1; // -1 == Game Setup, 0 == Start Menu, 1 == Game, 2 == Pause
 
@@ -59,11 +59,15 @@ class MainGame extends JFrame implements ActionListener, MouseListener {
   }
   
   public void mousePressed(MouseEvent e) {
-    // During game screen
+    /*
     if(currentScreen == 1 && player.weapon != 0) {
       if(player.shootTimer == player.rateOfFire) {
         playerShooting = true;
       }
+    }
+    */
+    if(currentScreen != -1) {
+      mousePressed = true;
     }
   }
 
@@ -114,6 +118,8 @@ class MainGame extends JFrame implements ActionListener, MouseListener {
     Vector2 mousePos = new Vector2();
     // For the mouse position when in menus
     Vector2 mousePosUI = new Vector2();
+    // For recording the result of mouse clicks in the menus
+    int function = -1;
 
 
     private long lastTime = System.currentTimeMillis();
@@ -133,22 +139,30 @@ class MainGame extends JFrame implements ActionListener, MouseListener {
       
 
       UIManager.addButton(new Vector2(100, 100), new Vector2(500, 200), 0, 0, "Test Button");
+
+      UIManager.addButton(new Vector2(100, 600), new Vector2(500, 700), 3, 0, "Play Again");
+
+      UIManager.addButton(new Vector2(700, 600), new Vector2(1100, 700), 3, 1, "Quit Game");
       
       EnemyManager.createEnemies();
 
       // Change this to zero once a menu screen is added
-      currentScreen = 1;
+      currentScreen = 0;
 
     }
 
     // Start screen (0)
     public void startScreen(Graphics2D g2D) {
-      
-      mousePosUI.x = mousePos.x + CANVAS_WIDTH/2 - player.getCentre().x;
-      mousePosUI.y = mousePos.y + CANVAS_HEIGHT/2 - player.getCentre().y;
 
       // If this breaks after a game restart, reset the position of the player.
-      UIManager.buttonCheck(currentScreen, mousePosUI, false);
+      function = UIManager.buttonCheck(currentScreen, mousePosUI, mousePressed);
+      // Reset the mouse detector
+      mousePressed = false;
+      // If the button's function is zero, it will start the game.
+      if(function == 0) {
+        currentScreen = 1;
+      }
+      function = -1;
 
       UIManager.drawButtons(g2D, currentScreen);
 
@@ -174,15 +188,17 @@ class MainGame extends JFrame implements ActionListener, MouseListener {
       // Draws the player/enemies
       player.drawPlayer(g2D, CANVAS_WIDTH, CANVAS_HEIGHT);
 
-      EnemyManager.drawEnemies(g2D);
+      EnemyManager.drawEnemies(g2D, CANVAS_WIDTH, CANVAS_HEIGHT);
 
       //g2D.setColor(Color.RED); // Hitbox of enemy
       //g2D.drawOval((int)enemy1.p.x, (int)enemy1.p.y, (int)enemy1.size, (int)enemy1.size);
       // Manages player shooting (should try to move to Keybinding once I have a Start method)
-      if(playerShooting) {
+      if(mousePressed && player.weapon != 0) {
         // Player's shoot method
-        player.shoot(g2D);
-        playerShooting = false;
+        if(player.shootTimer == player.rateOfFire) {
+          player.shoot(g2D);
+        }
+        mousePressed = false;
       }
     }
 
@@ -201,8 +217,19 @@ class MainGame extends JFrame implements ActionListener, MouseListener {
 
     }
 
+    // Lose Screen (3)
     public void loseScreen(Graphics2D g2D) {
 
+      function = UIManager.buttonCheck(currentScreen, mousePosUI, mousePressed);
+      // Reset the mouse detector
+      mousePressed = false;
+
+      if(function == 0) {
+        resetGame();
+      }
+      function = -1;
+
+      UIManager.drawButtons(g2D, currentScreen);
     }
 
     public double calcTimestep() {
@@ -218,7 +245,16 @@ class MainGame extends JFrame implements ActionListener, MouseListener {
         mousePos.x = (mousePoint.getX() - CANVAS_WIDTH/2) + player.getCentre().x;
         mousePos.y = (mousePoint.getY() - CANVAS_HEIGHT/2) + player.getCentre().y;
       }
+
+      mousePosUI.x = mousePos.x + CANVAS_WIDTH/2 - player.getCentre().x;
+      mousePosUI.y = mousePos.y + CANVAS_HEIGHT/2 - player.getCentre().y;
     } 
+
+    public void resetGame() {
+      EnemyManager.reset();
+      player.reset();
+      currentScreen = 0;
+    }
 
     public void paintComponent(Graphics g) {
       // Erase the screen 

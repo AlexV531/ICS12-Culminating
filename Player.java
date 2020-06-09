@@ -94,6 +94,16 @@ public class Player extends PhysicsObject {
 
     
   }
+
+  public void reset() {
+    hp = 100;
+    p.setToZero();
+    v.setToZero();
+    a.setToZero();
+    walkVelo.setToZero();
+    walkAcc.setToZero();
+    forceList.clear();
+  }
   
   public Vector2 getCentre() {
     
@@ -346,6 +356,11 @@ public class Player extends PhysicsObject {
         pellets[i] = new Vector2();
       }
     }
+  }
+
+  public void takeDamage(int healthLost) {
+    hp -= healthLost;
+    // Add a cooldown so the player cannot take damage shortly after taking damage
   }
 
   public boolean calcPos(double deltaTime, Vector2 mousePos) {

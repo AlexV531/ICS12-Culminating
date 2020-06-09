@@ -16,8 +16,8 @@ public class EnemyManager {
     static double currentTime = 0; // Used to have a delay between waves
     static boolean respawnInProgress = false;
     static int roundCount = 0; // Used to keep track of the rounds
-    static int waveCount = 0; // Used to keep track of the waves
-    static int targetTime = 5;
+    static int waveCount = 1; // Used to keep track of the waves
+    static int targetTime = 3;
 
     public EnemyManager() {
 
@@ -92,7 +92,7 @@ public class EnemyManager {
         }
     }
 
-    public static void drawEnemies(Graphics2D g2D) {
+    public static void drawEnemies(Graphics2D g2D, int CANVAS_WIDTH, int CANVAS_HEIGHT) {
         for(int i = 0; i < maxEnemies; i++) {
             enemyList[i].drawEnemy(g2D);
         }
@@ -118,6 +118,14 @@ public class EnemyManager {
             }
             // Reset shootingPing
             target.shootingPing = false;
+
+            
+        }
+
+        // Wave title
+        if(currentTime > 5 && currentTime < 10) {
+            g2D.setColor(Color.WHITE);
+            g2D.drawString("Wave " + waveCount, (int)target.p.x, (int)target.p.y);
         }
     }
     // Change to a static in the enemy class
@@ -130,14 +138,15 @@ public class EnemyManager {
         //System.out.println(currentTime);
         
         if(currentTime >= targetTime) {
-            targetTime = 5;
+            targetTime = 3;
             for(int i = 0; i < 4; i++) {
                 enemyList[i + (roundCount * 4)].spawn();
             }
             if(roundCount >= maxEnemies/4 - 1) {
                 respawnInProgress = false;
                 roundCount = 0;
-                targetTime = 15;
+                targetTime = 10;
+                waveCount++;
             } 
             else {
                 roundCount++;
@@ -169,6 +178,18 @@ public class EnemyManager {
                 }
             }
         }
+    }
+
+    public static void reset() {
+        currentTime = 0;
+        respawnInProgress = false;
+        roundCount = 0;
+        waveCount = 1;
+        targetTime = 3;
+        totalEnemiesDead = 0;
+        waveIntensity = 0;
+
+        createEnemies();
     }
 
 }

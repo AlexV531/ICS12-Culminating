@@ -50,13 +50,21 @@ public class UIManager {
         for(int i = 0; i < screenList.size(); i++) {
             // If the button is on the correct screen
             if(currentScreen == screenList.get(i)) {
+                g2D.setFont(h);
+
+                int width = (int)(bottomRightButton.get(i).x - topLeftButton.get(i).x);
+                int height = (int)(bottomRightButton.get(i).y - topLeftButton.get(i).y);
+
+                int stringWidth = g2D.getFontMetrics().stringWidth(titleList.get(i));
+                
                 // Draws the button chassis
                 g2D.setColor(colourList.get(i));
-                g2D.fillRect((int)topLeftButton.get(i).x, (int)topLeftButton.get(i).y, (int)(bottomRightButton.get(i).x - topLeftButton.get(i).x), (int)(bottomRightButton.get(i).y - topLeftButton.get(i).y));
-                // Adds the button title
-                g2D.setFont(h);
+                g2D.fillRect((int)topLeftButton.get(i).x, (int)topLeftButton.get(i).y, width, height);
+                // Draws the button border
                 g2D.setColor(Color.BLACK);
-                g2D.drawString(titleList.get(i), (int)topLeftButton.get(i).x, (int)bottomRightButton.get(i).y);
+                g2D.drawRect((int)topLeftButton.get(i).x, (int)topLeftButton.get(i).y, width, height);
+                // Adds the button title
+                g2D.drawString(titleList.get(i), (int)topLeftButton.get(i).x + (width/2 - stringWidth/2), (int)bottomRightButton.get(i).y - (height/2 - 24/2));
             }
         }
     }

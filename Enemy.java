@@ -96,6 +96,7 @@ public class Enemy extends PhysicsObject {
       target.addForce(new Vector2(6000, VMath.getAngleBetweenPoints(getCentre(), target.getCentre())));
       addForce(new Vector2(2000, VMath.getAngleBetweenPoints(target.getCentre(), getCentre())));
       
+      target.takeDamage(10);
     }
 
     if(hp <= 0) {
