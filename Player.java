@@ -48,6 +48,9 @@ public class Player extends PhysicsObject {
   Vector2[] pellets;
   double centreMouseRad = 0;
   boolean shootingPing = false;
+
+  // Health stuff
+  double healthDelay = 0;
   
   public Player() { 
     super(new Vector2(0, 0), 0, 0);
@@ -359,8 +362,11 @@ public class Player extends PhysicsObject {
   }
 
   public void takeDamage(int healthLost) {
-    hp -= healthLost;
-    // Add a cooldown so the player cannot take damage shortly after taking damage
+    if(healthDelay >= 0.5) {
+      hp -= healthLost;
+      healthDelay = 0;
+    }
+    
   }
 
   public boolean calcPos(double deltaTime, Vector2 mousePos) {
@@ -453,6 +459,15 @@ public class Player extends PhysicsObject {
     }
     // Increments the shootTimer
     shootTimer(deltaTime);
+
+    // Increments the health timer
+    if(healthDelay < 0.5) {
+      healthDelay += deltaTime;
+      if(healthDelay > 0.5) {
+        healthDelay = 0.5;
+      }
+    }
+    
 
     // Calculates the angle between the mouse and the player's centre
     centreMouseRad = VMath.getAngleBetweenPoints(getCentre(), mousePos);

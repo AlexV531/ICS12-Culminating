@@ -115,6 +115,8 @@ class MainGame extends JFrame implements ActionListener, MouseListener {
     
     double deltaTime = 0;
 
+    Font test = new Font("Impact", Font.PLAIN, 24);
+
     Vector2 mousePos = new Vector2();
     // For the mouse position when in menus
     Vector2 mousePosUI = new Vector2();
@@ -127,8 +129,11 @@ class MainGame extends JFrame implements ActionListener, MouseListener {
     private double timestep;
 
     // Game setup (-1)
-    public void gameSetup() {
-      System.out.println("GameSetup");
+    public void gameSetup(Graphics2D g2D) {
+
+      g2D.setColor(Color.RED);
+      g2D.drawString("Loading...", 100, 100);
+
       // Key Bindings
       defineKeyBindings(deltaTime);
 
@@ -136,13 +141,22 @@ class MainGame extends JFrame implements ActionListener, MouseListener {
       EnemyManager.chooseAllTargets(player);
 
       player.switchWeapon(2);
-      
 
-      UIManager.addButton(new Vector2(100, 100), new Vector2(500, 200), 0, 0, "Test Button");
-
+      // Start Screen buttons
+      UIManager.addButton(new Vector2(100, 600), new Vector2(500, 700), 0, 0, "Play Game");
+      UIManager.addButton(new Vector2(700, 600), new Vector2(1100, 700), 0, 1, "Quit Game");
+      UIManager.addButton(new Vector2(450, 775), new Vector2(750, 825), 0, 2, "How To Play");
+      // Pause Screen buttons
+      UIManager.addButton(new Vector2(100, 600), new Vector2(500, 700), 2, 0, "Return to Game");
+      UIManager.addButton(new Vector2(700, 600), new Vector2(1100, 700), 2, 1, "Quit Game");
+      // Lose Screem buttons
       UIManager.addButton(new Vector2(100, 600), new Vector2(500, 700), 3, 0, "Play Again");
-
       UIManager.addButton(new Vector2(700, 600), new Vector2(1100, 700), 3, 1, "Quit Game");
+      // Win Screen buttons
+      UIManager.addButton(new Vector2(100, 600), new Vector2(500, 700), 4, 0, "Play Again");
+      UIManager.addButton(new Vector2(700, 600), new Vector2(1100, 700), 4, 1, "Quit Game");
+      // Instruction Screen button
+      UIManager.addButton(new Vector2(400, 600), new Vector2(800, 700), 5, 0, "Return To Menu");
       
       EnemyManager.createEnemies();
 
@@ -162,13 +176,28 @@ class MainGame extends JFrame implements ActionListener, MouseListener {
       if(function == 0) {
         currentScreen = 1;
       }
+      else if(function == 1) {
+        System.exit(0);
+      }
+      else if(function == 2) {
+        currentScreen = 5;
+      }
       function = -1;
 
       UIManager.drawButtons(g2D, currentScreen);
+      
+      g2D.setFont(test);
+      g2D.setColor(Color.WHITE);
+      g2D.drawString("FONT TEST", 100, 100);
 
     }
     // Game screen (1)
     public void gameScreen(Graphics2D g2D) {
+      // If the player has past wave 5, they win
+      if(EnemyManager.getWaveCount() > 2 && EnemyManager.getCurrentTimeWave() > 4) {
+        currentScreen = 4;
+      }
+      
       // Updates the player/enemy positions
       if(!player.calcPos(deltaTime, mousePos)) {
         currentScreen = 3;
@@ -179,9 +208,6 @@ class MainGame extends JFrame implements ActionListener, MouseListener {
       // Moves the camera to focus on player
       g2D.translate((int)-(player.getCentre().x - CANVAS_WIDTH/2), (int)-(player.getCentre().y - CANVAS_HEIGHT/2));
       
-      // Draws the background
-      setBackground(CANVAS_BACKGROUND); 
-      
       // Testing floor
       Level.addFloor(g2D, -1000, -1000, 50, 50, i);
 
@@ -189,6 +215,8 @@ class MainGame extends JFrame implements ActionListener, MouseListener {
       player.drawPlayer(g2D, CANVAS_WIDTH, CANVAS_HEIGHT);
 
       EnemyManager.drawEnemies(g2D, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+      UIManager.headsUpDisplay(g2D, player);
 
       //g2D.setColor(Color.RED); // Hitbox of enemy
       //g2D.drawOval((int)enemy1.p.x, (int)enemy1.p.y, (int)enemy1.size, (int)enemy1.size);
@@ -205,20 +233,27 @@ class MainGame extends JFrame implements ActionListener, MouseListener {
     // Pause screen (2)
     public void pauseScreen(Graphics2D g2D) {
 
-      g2D.setColor(new Color(255, 0, 0));
+      function = UIManager.buttonCheck(currentScreen, mousePosUI, mousePressed);
+      // Reset the mouse detector
+      mousePressed = false;
 
-      g2D.drawImage(pauseScreen, 0, 0, null);
-      /*
-      Font h = new Font("Helvetica", Font.PLAIN, 24);
+      if(function == 0) {
+        currentScreen = 1;
+      }
+      else if(function == 1) {
+        System.exit(0);
+      }
+      function = -1;
 
-      g2D.setFont(h);
-      g2D.drawString("Font Test", 100, 100);
-      */
+      UIManager.drawButtons(g2D, currentScreen);
 
     }
 
     // Lose Screen (3)
     public void loseScreen(Graphics2D g2D) {
+
+      g2D.setColor(Color.RED);
+      g2D.drawString("You Lose", 100, 100);
 
       function = UIManager.buttonCheck(currentScreen, mousePosUI, mousePressed);
       // Reset the mouse detector
@@ -227,10 +262,45 @@ class MainGame extends JFrame implements ActionListener, MouseListener {
       if(function == 0) {
         resetGame();
       }
+      else if(function == 1) {
+        System.exit(0);
+      }
       function = -1;
 
       UIManager.drawButtons(g2D, currentScreen);
     }
+    // Win Screen (4)
+    public void winScreen(Graphics2D g2D) {
+
+      function = UIManager.buttonCheck(currentScreen, mousePosUI, mousePressed);
+      // Reset the mouse detector
+      mousePressed = false;
+
+      if(function == 0) {
+        resetGame();
+      }
+      else if(function == 1) {
+        System.exit(0);
+      }
+      function = -1;
+
+      UIManager.drawButtons(g2D, currentScreen);
+    }
+    // Instructions Screen (5)
+    public void instructionsScreen(Graphics2D g2D) {
+
+      function = UIManager.buttonCheck(currentScreen, mousePosUI, mousePressed);
+      // Reset the mouse detector
+      mousePressed = false;
+
+      if(function == 0) {
+        currentScreen = 0;
+      }
+      function = -1;
+
+      UIManager.drawButtons(g2D, currentScreen);
+    }
+    
 
     public double calcTimestep() {
       time = System.currentTimeMillis();
@@ -262,6 +332,9 @@ class MainGame extends JFrame implements ActionListener, MouseListener {
 
       Graphics2D g2D = (Graphics2D)g;
 
+      // Draws the background
+      setBackground(CANVAS_BACKGROUND); 
+      
       // Gets the mouse position
       calcMousePos();
       
@@ -269,7 +342,7 @@ class MainGame extends JFrame implements ActionListener, MouseListener {
       deltaTime = calcTimestep();
       // Sets up keybindings etc.
       if(currentScreen == -1) {
-        gameSetup();
+        gameSetup(g2D);
       }
       // Shows the right screen
       else if(currentScreen == 0) {
@@ -283,6 +356,12 @@ class MainGame extends JFrame implements ActionListener, MouseListener {
       }
       else if(currentScreen == 3) {
         loseScreen(g2D);
+      }
+      else if(currentScreen == 4) {
+        winScreen(g2D);
+      }
+      else if(currentScreen == 5) {
+        instructionsScreen(g2D);
       }
 
       

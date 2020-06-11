@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import javax.swing.*;
 import java.awt.*;
 
 public class UIManager {
@@ -11,6 +12,9 @@ public class UIManager {
     static ArrayList<String> titleList = new ArrayList<String>();
 
     static Font h = new Font("Helvetica", Font.PLAIN, 24);
+
+    static ImageIcon hb = new ImageIcon("images/HealthBar2.png");
+    static Image healthBar = hb.getImage();
 
     public static void addButton(Vector2 topLeft, Vector2 bottomRight, int screen, int function, String title) {
         topLeftButton.add(topLeft);
@@ -67,6 +71,17 @@ public class UIManager {
                 g2D.drawString(titleList.get(i), (int)topLeftButton.get(i).x + (width/2 - stringWidth/2), (int)bottomRightButton.get(i).y - (height/2 - 24/2));
             }
         }
+    }
+
+    public static void headsUpDisplay(Graphics2D g2D, Player player) {
+
+        g2D.setColor(Color.RED);
+        // 384 pixels = full health
+        g2D.fillRect((int)player.p.x - 472, (int)player.p.y + 416, (int)(player.hp * 3.84), 44);
+
+        g2D.drawImage(healthBar, (int)player.p.x - 568, (int)player.p.y + 404, null);
+
+
     }
 
 

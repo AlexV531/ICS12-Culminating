@@ -6,7 +6,7 @@ public class EnemyManager {
 
     static int totalEnemiesDead = 0;
     static int waveIntensity = 0;
-    static int maxEnemies = 12;
+    static int maxEnemies = 32;
     static Enemy[] enemyList = new Enemy[maxEnemies];
     static Enemy[] enemyListSorted = new Enemy[maxEnemies]; // Used to keep the enemyList unscrambled
     static Vector2[] spawnPointList = new Vector2[4];
@@ -23,6 +23,14 @@ public class EnemyManager {
 
     }
 
+    public static int getWaveCount() {
+        return waveCount;
+    }
+
+    public static double getCurrentTimeWave() {
+        return currentTime;
+    }
+    
     public static void createEnemies() {
         // Top Left
         spawnPointList[0] = new Vector2(-500, -500);
@@ -146,7 +154,7 @@ public class EnemyManager {
                 respawnInProgress = false;
                 roundCount = 0;
                 targetTime = 10;
-                waveCount++;
+                
             } 
             else {
                 roundCount++;
@@ -160,6 +168,7 @@ public class EnemyManager {
         if(totalEnemiesDead >= (maxEnemies/4)*4) {
             respawnInProgress = true;
             totalEnemiesDead = 0;
+            waveCount++;
         }
     }
 
