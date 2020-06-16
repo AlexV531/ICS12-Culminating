@@ -115,7 +115,9 @@ class MainGame extends JFrame implements ActionListener, MouseListener {
     
     double deltaTime = 0;
 
-    Font test = new Font("Impact", Font.PLAIN, 24);
+    Font title = new Font("Impact", Font.PLAIN, 200);
+    Font subTitle = new Font("Impact", Font.PLAIN, 80);
+    Font text = new Font("Helvetia", Font.PLAIN, 40);
 
     Vector2 mousePos = new Vector2();
     // For the mouse position when in menus
@@ -163,6 +165,8 @@ class MainGame extends JFrame implements ActionListener, MouseListener {
       // Change this to zero once a menu screen is added
       currentScreen = 0;
 
+      //EnemyManager.startSpawning();
+
     }
 
     // Start screen (0)
@@ -186,15 +190,15 @@ class MainGame extends JFrame implements ActionListener, MouseListener {
 
       UIManager.drawButtons(g2D, currentScreen);
       
-      g2D.setFont(test);
+      g2D.setFont(title);
       g2D.setColor(Color.WHITE);
-      g2D.drawString("FONT TEST", 100, 100);
+      g2D.drawString("ARMAGEDDON", 50, 300);
 
     }
     // Game screen (1)
     public void gameScreen(Graphics2D g2D) {
-      // If the player has past wave 5, they win
-      if(EnemyManager.getWaveCount() > 2 && EnemyManager.getCurrentTimeWave() > 4) {
+      // If the player has past wave 3, they win
+      if(EnemyManager.getWaveCount() > 3 && EnemyManager.getCurrentTimeWave() > 4) {
         currentScreen = 4;
       }
       
@@ -247,13 +251,14 @@ class MainGame extends JFrame implements ActionListener, MouseListener {
 
       UIManager.drawButtons(g2D, currentScreen);
 
+      g2D.setFont(title);
+      g2D.setColor(Color.WHITE);
+      g2D.drawString("PAUSED", 290, 300);
+
     }
 
     // Lose Screen (3)
     public void loseScreen(Graphics2D g2D) {
-
-      g2D.setColor(Color.RED);
-      g2D.drawString("You Lose", 100, 100);
 
       function = UIManager.buttonCheck(currentScreen, mousePosUI, mousePressed);
       // Reset the mouse detector
@@ -268,6 +273,11 @@ class MainGame extends JFrame implements ActionListener, MouseListener {
       function = -1;
 
       UIManager.drawButtons(g2D, currentScreen);
+
+      g2D.setFont(title);
+      g2D.setColor(Color.WHITE);
+      g2D.drawString("GAME OVER", 160, 300);
+
     }
     // Win Screen (4)
     public void winScreen(Graphics2D g2D) {
@@ -285,6 +295,11 @@ class MainGame extends JFrame implements ActionListener, MouseListener {
       function = -1;
 
       UIManager.drawButtons(g2D, currentScreen);
+
+      g2D.setFont(title);
+      g2D.setColor(Color.WHITE);
+      g2D.drawString("YOU WIN", 280, 300);
+
     }
     // Instructions Screen (5)
     public void instructionsScreen(Graphics2D g2D) {
@@ -299,6 +314,17 @@ class MainGame extends JFrame implements ActionListener, MouseListener {
       function = -1;
 
       UIManager.drawButtons(g2D, currentScreen);
+
+      g2D.setFont(subTitle);
+      g2D.setColor(Color.WHITE);
+      g2D.drawString("HOW TO PLAY", 400, 120);
+
+      g2D.setFont(text);
+      g2D.drawString("The objective of the game is to survive three waves of enemies.", 50, 230);
+      g2D.drawString("Move with WASD and shoot with left click.", 240, 280);
+      g2D.drawString("Switch weapon with the number keys", 280, 330);
+      g2D.drawString("If you lose all of your health, you lose the game.", 200, 380);
+
     }
     
 
@@ -428,7 +454,7 @@ class MainGame extends JFrame implements ActionListener, MouseListener {
     });
 
     addKeyBinding(canvas, KeyEvent.VK_G, false, "SpawnEnemies", (evt) -> {
-      EnemyManager.respawnInProgress = true;
+      EnemyManager.startSpawning();
     });
   }
   

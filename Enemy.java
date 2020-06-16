@@ -1,4 +1,3 @@
-import javax.swing.*;
 import java.awt.*;
 import java.util.*;
 
@@ -7,8 +6,10 @@ public class Enemy extends PhysicsObject {
   static Player target = new Player();
   
   Vector2 velo = new Vector2();
-  static double maxSpeed = 150;
-  double hp = 10;
+  double hp;
+  double maxHP;
+
+  double distanceFromTarget;
 
   boolean dead = true;
 
@@ -17,30 +18,19 @@ public class Enemy extends PhysicsObject {
   static int enemiesShot = 0; // Counts how many enemies are shot this frame
 
   // Animation Variables
-  int legCount = 0;
-  double legModY = 0;
-  Image possessedLeft, possessedRight, possessedLL, possessedRL, currentImage;
+  //int legCount = 0;
+  //double legModY = 0;
+  //Image possessedLeft, possessedRight, possessedLL, possessedRL, currentImage;
 
   // Bullet Trail Variables(This is jank maybe remove later)
   ArrayList<Vector2> bulletPoints = new ArrayList<Vector2>();
 
   
-  public Enemy(Vector2 startPos, int s, double mass) { 
+  public Enemy(Vector2 startPos, int s, double mass, double healthPoints) { 
     super(startPos, s, mass);
-    
+    maxHP = healthPoints;
+    hp = healthPoints;
     spawnPoint = startPos;
-
-    ImageIcon eL = new ImageIcon("images/Possessed01-Left.png");
-    possessedLeft = eL.getImage();
-    ImageIcon eR = new ImageIcon("images/Possessed01-Right.png");
-    possessedRight = eR.getImage();
-    currentImage = possessedLeft;
-
-    ImageIcon eLL = new ImageIcon("images/Soldier01-LeftLeg.png");
-    possessedLL = eLL.getImage();
-    ImageIcon eRL = new ImageIcon("images/Soldier01-RightLeg.png");
-    possessedRL = eRL.getImage();
-    
   }
   
   public void drawEnemy(Graphics2D g2D) {
@@ -48,24 +38,6 @@ public class Enemy extends PhysicsObject {
     if(dead) {
       return;
     }
-
-    legCount++;
-    if(legCount > 10000) {
-      legCount = 0;
-    }
-    legModY = Math.sin(legCount * 1/1.2) * 6;
-
-    if(target.p.x >= p.x) {
-      currentImage = possessedRight;
-    }
-    else if (target.p.x < p.x) {
-      currentImage = possessedLeft;
-    }
-
-    g2D.drawImage(possessedLL, (int)(p.x), (int)(p.y + legModY), null);
-    g2D.drawImage(possessedRL, (int)(p.x), (int)(p.y - legModY), null);
-
-    g2D.drawImage(currentImage, (int)p.x, (int)p.y, null);
 
   }
 
@@ -84,14 +56,11 @@ public class Enemy extends PhysicsObject {
     if(dead) {
       return;
     }
-    
-    velo.x = maxSpeed * deltaTime;
-    velo.y = VMath.getAngleBetweenPoints(getCentre(), target.getCentre());
-    
-    p = VMath.addVectors(VMath.polarToCart(velo), p);
 
-    // Manages collisions between the player and the enemies (should move elsewhere, enemy class?)
-    if(VMath.getDistanceBetweenPoints(target.getCentre(), getCentre()) < target.size/2 + size/2) {
+    distanceFromTarget = VMath.getDistanceBetweenPoints(target.getCentre(), getCentre());
+
+    // Manages collisions between the player and the enemies
+    if(distanceFromTarget < target.size/2 + size/2) {
         
       target.addForce(new Vector2(6000, VMath.getAngleBetweenPoints(getCentre(), target.getCentre())));
       addForce(new Vector2(2000, VMath.getAngleBetweenPoints(target.getCentre(), getCentre())));
@@ -99,8 +68,10 @@ public class Enemy extends PhysicsObject {
       target.takeDamage(10);
     }
 
+    // If the enemy dies
     if(hp <= 0) {
       dead = true;
+      // Moves the enemies to some "Graveyard" position so they don't interfere with the game after death
       p.x = 2000;
       p.y = 2000;
       // Adds to the enemies death count
@@ -108,6 +79,7 @@ public class Enemy extends PhysicsObject {
       //System.out.println("Enemy killed");
     }
 
+    // Physics object calculations
     super.calcPos(deltaTime);
     
   }
@@ -133,7 +105,7 @@ public class Enemy extends PhysicsObject {
   }
 
   public void spawn() {
-    hp = 10;
+    hp = maxHP;
     dead = false;
     p.x = spawnPoint.x;
     p.y = spawnPoint.y;

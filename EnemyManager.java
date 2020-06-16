@@ -5,11 +5,11 @@ public class EnemyManager {
     static Player target = new Player();
 
     static int totalEnemiesDead = 0;
-    static int waveIntensity = 0;
-    static int maxEnemies = 32;
+    static int maxEnemies = 4;
     static Enemy[] enemyList = new Enemy[maxEnemies];
     static Enemy[] enemyListSorted = new Enemy[maxEnemies]; // Used to keep the enemyList unscrambled
     static Vector2[] spawnPointList = new Vector2[4];
+    static Projectile[] projList = new Projectile[10];
     // Used to draw bullet trails
     static double maxDistance;
     // Wave managment varibles
@@ -17,7 +17,9 @@ public class EnemyManager {
     static boolean respawnInProgress = false;
     static int roundCount = 0; // Used to keep track of the rounds
     static int waveCount = 1; // Used to keep track of the waves
-    static int targetTime = 3;
+    static int targetTime = 6;
+
+    static Font wave = new Font("Impact", Font.PLAIN, 100);
 
     public EnemyManager() {
 
@@ -30,7 +32,24 @@ public class EnemyManager {
     public static double getCurrentTimeWave() {
         return currentTime;
     }
+
+    public static void startSpawning() {
+        respawnInProgress = true;
+    }
     
+    public static void activateProjectile(Vector2 targetPos, Vector2 startPos) {
+
+        // Runs through each projectile
+        for(int i = 0; i < projList.length; i++) {
+            // When (or if) it finds a projetile that isn't active, it activates it with a target and starting position
+            if(!projList[i].isActive()) {
+                projList[i].activate(targetPos, startPos);
+                break;
+            }
+        }
+
+    }
+
     public static void createEnemies() {
         // Top Left
         spawnPointList[0] = new Vector2(-500, -500);
@@ -42,8 +61,11 @@ public class EnemyManager {
         spawnPointList[3] = new Vector2(500, 500);
         // Creates the enemies according to the parameters
         for(int i = 0; i < maxEnemies; i++) {
-            enemyList[i] = new Enemy(spawnPointList[i % spawnPointList.length], 64, 5);
+            enemyList[i] = new ShootingEnemy(spawnPointList[i % spawnPointList.length], 64, 5);
             enemyListSorted[i] = enemyList[i];
+        }
+        for(int i = 0; i < projList.length; i++) {
+            projList[i] = new Projectile();
         }
     }
 
@@ -93,10 +115,17 @@ public class EnemyManager {
             
             // Resets the number of enemies shot this frame for next frame
             Enemy.enemiesShot = 0;
+            
+            
         }
 
         for(int i = 0; i < maxEnemies; i++) {
             enemyList[i].calcPos(deltaTime);
+        }
+
+        // Updates the projectiles
+        for(int i = 0; i < projList.length; i++) {
+            projList[i].calcPos(deltaTime);
         }
     }
 
@@ -130,16 +159,23 @@ public class EnemyManager {
             
         }
 
-        // Wave title
-        if(currentTime > 5 && currentTime < 10) {
+        // Wave title                                         V - Change if the max wave count goes above 3
+        if(currentTime > 3 && currentTime < 6 && waveCount <= 3) {
+            g2D.setFont(wave);
             g2D.setColor(Color.WHITE);
-            g2D.drawString("Wave " + waveCount, (int)target.p.x, (int)target.p.y);
+            g2D.drawString("Wave " + waveCount, (int)target.p.x - 110, (int)target.p.y - 200);
+        }
+
+        // Updates the projectiles
+        for(int i = 0; i < projList.length; i++) {
+            projList[i].drawPojectile(g2D);
         }
     }
     // Change to a static in the enemy class
     public static void chooseAllTargets(Player player) {
         target = player;
         Enemy.target = player;
+        Projectile.target = player;
     }
     public static void spawnAll(double deltaTime) {
         currentTime += deltaTime;
@@ -153,7 +189,7 @@ public class EnemyManager {
             if(roundCount >= maxEnemies/4 - 1) {
                 respawnInProgress = false;
                 roundCount = 0;
-                targetTime = 10;
+                targetTime = 6;
                 
             } 
             else {
@@ -196,7 +232,6 @@ public class EnemyManager {
         waveCount = 1;
         targetTime = 3;
         totalEnemiesDead = 0;
-        waveIntensity = 0;
 
         createEnemies();
     }
