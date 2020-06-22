@@ -6,10 +6,12 @@ public class EnemyManager {
 
     static int totalEnemiesDead = 0;
     static int maxEnemies = 4;
+    // Lists of all entities in the game
     static Enemy[] enemyList = new Enemy[maxEnemies];
     static Enemy[] enemyListSorted = new Enemy[maxEnemies]; // Used to keep the enemyList unscrambled
     static Vector2[] spawnPointList = new Vector2[4];
     static Projectile[] projList = new Projectile[10];
+    static PowerUp[] powerUpList = new PowerUp[10];
     // Used to draw bullet trails
     static double maxDistance;
     // Wave managment varibles
@@ -50,6 +52,17 @@ public class EnemyManager {
 
     }
 
+    public static void activatePowerUp(Vector2 pos, int function) {
+        // Runs through each power up
+        for(int i = 0; i < powerUpList.length; i++) {
+            // When (or if) it finds a projetile that isn't active, it activates it with a target and starting position
+            if(!powerUpList[i].isActive()) {
+                powerUpList[i].activate(pos, function);
+                break;
+            }
+        }
+    }
+
     public static void createEnemies() {
         // Top Left
         spawnPointList[0] = new Vector2(-500, -500);
@@ -66,6 +79,9 @@ public class EnemyManager {
         }
         for(int i = 0; i < projList.length; i++) {
             projList[i] = new Projectile();
+        }
+        for(int i = 0; i < powerUpList.length; i++) {
+            powerUpList[i] = new PowerUp();
         }
     }
 
@@ -127,6 +143,10 @@ public class EnemyManager {
         for(int i = 0; i < projList.length; i++) {
             projList[i].calcPos(deltaTime);
         }
+        // Updates the power ups
+        for(int i = 0; i < powerUpList.length; i++) {
+            powerUpList[i].calcPos();
+        }
     }
 
     public static void drawEnemies(Graphics2D g2D, int CANVAS_WIDTH, int CANVAS_HEIGHT) {
@@ -170,12 +190,17 @@ public class EnemyManager {
         for(int i = 0; i < projList.length; i++) {
             projList[i].drawPojectile(g2D);
         }
+        // Updates the power ups
+        for(int i = 0; i < powerUpList.length; i++) {
+            powerUpList[i].drawPowerUp(g2D);
+        }
     }
     // Change to a static in the enemy class
     public static void chooseAllTargets(Player player) {
         target = player;
         Enemy.target = player;
         Projectile.target = player;
+        PowerUp.target = player;
     }
     public static void spawnAll(double deltaTime) {
         currentTime += deltaTime;

@@ -15,7 +15,7 @@ class MainGame extends JFrame implements ActionListener, MouseListener {
   // the buttons
   JButton btnQ1, btnQ2, btnQ3, btnExit;
   
-  Player player = new Player(new Vector2(0, 0), 64, 10);
+  //Player player = new Player(new Vector2(0, 0), 64, 10);
 
   // Rest in peace enemy1, you will be missed
   //ChasingEnemy enemy1 = new ChasingEnemy(new Vector2(100, 500), 64, 5); 
@@ -136,13 +136,16 @@ class MainGame extends JFrame implements ActionListener, MouseListener {
       g2D.setColor(Color.RED);
       g2D.drawString("Loading...", 100, 100);
 
+      // Creates the player
+      PlayerManager.createPlayer();
+
       // Key Bindings
       defineKeyBindings(deltaTime);
 
       // Gives enemies a reference to the player
-      EnemyManager.chooseAllTargets(player);
+      EnemyManager.chooseAllTargets(PlayerManager.getPlayer());
 
-      player.switchWeapon(2);
+      PlayerManager.switchWeapon(2);
 
       // Start Screen buttons
       UIManager.addButton(new Vector2(100, 600), new Vector2(500, 700), 0, 0, "Play Game");
@@ -203,33 +206,31 @@ class MainGame extends JFrame implements ActionListener, MouseListener {
       }
       
       // Updates the player/enemy positions
-      if(!player.calcPos(deltaTime, mousePos)) {
+      if(!PlayerManager.calcPos(deltaTime, mousePos)) {
         currentScreen = 3;
       }
 
       EnemyManager.calcPos(deltaTime);
       
       // Moves the camera to focus on player
-      g2D.translate((int)-(player.getCentre().x - CANVAS_WIDTH/2), (int)-(player.getCentre().y - CANVAS_HEIGHT/2));
+      g2D.translate((int)-(PlayerManager.getCentre().x - CANVAS_WIDTH/2), (int)-(PlayerManager.getCentre().y - CANVAS_HEIGHT/2));
       
       // Testing floor
       Level.addFloor(g2D, -1000, -1000, 50, 50, i);
 
       // Draws the player/enemies
-      player.drawPlayer(g2D, CANVAS_WIDTH, CANVAS_HEIGHT);
+      PlayerManager.drawPlayer(g2D, CANVAS_WIDTH, CANVAS_HEIGHT);
 
       EnemyManager.drawEnemies(g2D, CANVAS_WIDTH, CANVAS_HEIGHT);
 
-      UIManager.headsUpDisplay(g2D, player);
+      UIManager.headsUpDisplay(g2D, PlayerManager.getPlayer());
 
       //g2D.setColor(Color.RED); // Hitbox of enemy
       //g2D.drawOval((int)enemy1.p.x, (int)enemy1.p.y, (int)enemy1.size, (int)enemy1.size);
       // Manages player shooting (should try to move to Keybinding once I have a Start method)
-      if(mousePressed && player.weapon != 0) {
+      if(mousePressed) {
         // Player's shoot method
-        if(player.shootTimer == player.rateOfFire) {
-          player.shoot(g2D);
-        }
+        PlayerManager.shoot(g2D);
         mousePressed = false;
       }
     }
@@ -338,17 +339,17 @@ class MainGame extends JFrame implements ActionListener, MouseListener {
     public void calcMousePos() {
       Point mousePoint = canvas.getMousePosition();
       if(mousePoint != null) {
-        mousePos.x = (mousePoint.getX() - CANVAS_WIDTH/2) + player.getCentre().x;
-        mousePos.y = (mousePoint.getY() - CANVAS_HEIGHT/2) + player.getCentre().y;
+        mousePos.x = (mousePoint.getX() - CANVAS_WIDTH/2) + PlayerManager.getCentre().x;
+        mousePos.y = (mousePoint.getY() - CANVAS_HEIGHT/2) + PlayerManager.getCentre().y;
       }
 
-      mousePosUI.x = mousePos.x + CANVAS_WIDTH/2 - player.getCentre().x;
-      mousePosUI.y = mousePos.y + CANVAS_HEIGHT/2 - player.getCentre().y;
+      mousePosUI.x = mousePos.x + CANVAS_WIDTH/2 - PlayerManager.getCentre().x;
+      mousePosUI.y = mousePos.y + CANVAS_HEIGHT/2 - PlayerManager.getCentre().y;
     } 
 
     public void resetGame() {
       EnemyManager.reset();
-      player.reset();
+      PlayerManager.reset();
       currentScreen = 0;
     }
 
@@ -360,18 +361,20 @@ class MainGame extends JFrame implements ActionListener, MouseListener {
 
       // Draws the background
       setBackground(CANVAS_BACKGROUND); 
+
+      // Sets up keybindings etc.
+      if(currentScreen == -1) {
+        gameSetup(g2D);
+      }
       
       // Gets the mouse position
       calcMousePos();
       
       // Calculate the timestep
       deltaTime = calcTimestep();
-      // Sets up keybindings etc.
-      if(currentScreen == -1) {
-        gameSetup(g2D);
-      }
+      
       // Shows the right screen
-      else if(currentScreen == 0) {
+      if(currentScreen == 0) {
         startScreen(g2D);
       }
       else if(currentScreen == 1) {
@@ -399,31 +402,31 @@ class MainGame extends JFrame implements ActionListener, MouseListener {
     // Key Bindings (True: on key release False: on key press)
     // Move up
     addKeyBinding(canvas, KeyEvent.VK_W, false, "MoveUp", (evt) -> {
-      player.mUp = true;
+      PlayerManager.getPlayer().mUp = true;
     });
     addKeyBinding(canvas, KeyEvent.VK_W, true, "MoveUpRelease", (evt) -> {
-      player.mUp = false;
+      PlayerManager.getPlayer().mUp = false;
     });
     // Move down
     addKeyBinding(canvas, KeyEvent.VK_S, false, "MoveDown", (evt) -> {
-      player.mDown = true;
+      PlayerManager.getPlayer().mDown = true;
     });
     addKeyBinding(canvas, KeyEvent.VK_S, true, "MoveDownRelease", (evt) -> {
-      player.mDown = false;
+      PlayerManager.getPlayer().mDown = false;
     });
     // Move right
     addKeyBinding(canvas, KeyEvent.VK_D, false, "MoveRight", (evt) -> {
-      player.mRight = true;
+      PlayerManager.getPlayer().mRight = true;
     });
     addKeyBinding(canvas, KeyEvent.VK_D, true, "MoveRightRelease", (evt) -> {
-      player.mRight = false;
+      PlayerManager.getPlayer().mRight = false;
     });
     //Move left
     addKeyBinding(canvas, KeyEvent.VK_A, false, "MoveLeft", (evt) -> {
-      player.mLeft = true;
+      PlayerManager.getPlayer().mLeft = true;
     });
     addKeyBinding(canvas, KeyEvent.VK_A, true, "MoveLeftRelease", (evt) -> {
-      player.mLeft = false;
+      PlayerManager.getPlayer().mLeft = false;
     });
     // Pause game
     addKeyBinding(canvas, KeyEvent.VK_P, false, "Pause", (evt) -> {
@@ -437,24 +440,29 @@ class MainGame extends JFrame implements ActionListener, MouseListener {
     // Switch Weapons
     // Switch to pistol
     addKeyBinding(canvas, KeyEvent.VK_1, false, "Switch1", (evt) -> {
-      if(player.weapon != 1 && player.pistolAcquired) {
-        player.switchWeapon(1); 
+      if(PlayerManager.getPlayer().weapon != 1 && PlayerManager.getPlayer().pistolAcquired) {
+        PlayerManager.switchWeapon(1); 
       }
       else {
-        player.switchWeapon(0); 
+        PlayerManager.switchWeapon(0); 
       }
     });
     addKeyBinding(canvas, KeyEvent.VK_2, false, "Switch2", (evt) -> {
-      if(player.weapon != 2 && player.shotgunAcquired) {
-        player.switchWeapon(2); 
+      if(PlayerManager.getPlayer().weapon != 2 && PlayerManager.getPlayer().shotgunAcquired) {
+        PlayerManager.switchWeapon(2); 
       }
       else {
-        player.switchWeapon(0); 
+        PlayerManager.switchWeapon(0); 
       }
     });
-
+    // Starts the spawning of enemies in waves
     addKeyBinding(canvas, KeyEvent.VK_G, false, "SpawnEnemies", (evt) -> {
       EnemyManager.startSpawning();
+    });
+    // Adds a health power up at (0, 0)
+    addKeyBinding(canvas, KeyEvent.VK_H, false, "AddHealth", (evt) -> {
+      //EnemyManager.activatePowerUp(new Vector2(0, 0), 0);
+      PlayerManager.activateStatusEffect(1, 0.25, 1);
     });
   }
   

@@ -3,7 +3,7 @@ import java.awt.*;
 
 public class ShootingEnemy extends Enemy{
 
-    static double maxSpeed = 120;
+    static double maxSpeed = 150;
 
     // Timer Variables
     double currentTime = 0; // Timer
@@ -49,7 +49,7 @@ public class ShootingEnemy extends Enemy{
         }
         // After animation, a projectile is fired
         if(currentTime >= activationDelay && shooting) {
-            EnemyManager.activateProjectile(target.getCentre(), new Vector2(p.x + 8, p.y + 8));
+            EnemyManager.activateProjectile(target.getCentre(), new Vector2(getCentre().x - 8, getCentre().y - 8));
             shooting = false;
             currentTime = 0;
         } 

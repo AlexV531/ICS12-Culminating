@@ -13,6 +13,7 @@ public class Player extends PhysicsObject {
   
   // Personal stats
   double hp = 100;
+  static double maxHealth = 100;
   
   // Player sprites
   Image playerP1Image, playerP2Image, playerP3Image, playerP4Image, playerP5Image, playerP6Image, playerP7Image, playerP8Image, currentImage;
@@ -38,6 +39,8 @@ public class Player extends PhysicsObject {
   int piercing; // Number of enemies the bullet goes through
   Image weaponLeft;
   Image weaponRight;
+  // Weapon modifiers // These are used by status effects to adjust the player's stats without affecting the base values
+  double rateOfFireMod = 1;
 
   boolean pistolAcquired = true;
   boolean shotgunAcquired = true;
@@ -51,6 +54,9 @@ public class Player extends PhysicsObject {
 
   // Health stuff
   double healthDelay = 0;
+
+  // Status effects
+  double effectTimer = 0;
   
   public Player() { 
     super(new Vector2(0, 0), 0, 0);
@@ -111,6 +117,10 @@ public class Player extends PhysicsObject {
   public Vector2 getCentre() {
     
     return new Vector2(p.x + size/2, p.y + size/2);
+  }
+  
+  public void setRateOfFireMod(double rofMod) {
+    rateOfFireMod = rofMod;
   }
   
   public void drawPlayer(Graphics2D g2D, int CANVAS_WIDTH, int CANVAS_HEIGHT) {
@@ -268,7 +278,7 @@ public class Player extends PhysicsObject {
 
   public void shoot(Graphics2D g2D) {
     
-    if(shootTimer == rateOfFire) {
+    if(shootTimer >= rateOfFire * rateOfFireMod && weapon != 0) {
       // Recoil force in opposite direction of player
       addForce(new Vector2(recoil, centreMouseRad - Math.PI));
       // For drawing the bullet trails later
@@ -311,10 +321,10 @@ public class Player extends PhysicsObject {
   
   private void shootTimer(double deltaTime) {
     
-    if(shootTimer < rateOfFire) {
+    if(shootTimer < rateOfFire * rateOfFireMod) {
       shootTimer += deltaTime;
-      if(shootTimer > rateOfFire) {
-        shootTimer = rateOfFire;
+      if(shootTimer > rateOfFire * rateOfFireMod) {
+        shootTimer = rateOfFire * rateOfFireMod;
       }
     }
   }
@@ -367,6 +377,14 @@ public class Player extends PhysicsObject {
       healthDelay = 0;
     }
     
+  }
+
+  public void increaseHealth(double healthGained) {
+    hp += healthGained;
+    if(hp > maxHealth) {
+      hp = maxHealth;
+    }
+
   }
 
   public boolean calcPos(double deltaTime, Vector2 mousePos) {

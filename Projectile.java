@@ -7,7 +7,7 @@ public class Projectile {
     Vector2 v = new Vector2();
     double maxSpeed = 200;
     double angle;
-    int size = 16; 
+    static int size = 16; 
 
     static Player target;
 
