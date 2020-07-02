@@ -18,7 +18,7 @@ public class Player extends PhysicsObject {
   // Player sprites
   Image playerP1Image, playerP2Image, playerP3Image, playerP4Image, playerP5Image, playerP6Image, playerP7Image, playerP8Image, currentImage;
   // Player limb sprites
-  Image playerLLImage, playerRLImage, playerLHImage, playerRHImage, shotgunLeft, shotgunRight, pistolLeft, pistolRight;
+  Image playerLLImage, playerRLImage, playerLHImage, playerRHImage, shotgunLeft, shotgunRight, pistolLeft, pistolRight, assaultRifleLeft, assaultRifleRight;
 
   // Animation Helpers
   int legCount = 0;
@@ -37,6 +37,7 @@ public class Player extends PhysicsObject {
   double spread; // Affects how spread out the shotgun pellets are
   double recoil; // Force the player is pushed back
   int piercing; // Number of enemies the bullet goes through
+  boolean automatic; // Whether the player can hold shoot or not
   Image weaponLeft;
   Image weaponRight;
   // Weapon modifiers // These are used by status effects to adjust the player's stats without affecting the base values
@@ -100,6 +101,11 @@ public class Player extends PhysicsObject {
     pistolLeft = pl.getImage();
     ImageIcon pr = new ImageIcon("images/PistolRight.png");
     pistolRight = pr.getImage();
+
+    ImageIcon arl = new ImageIcon("images/AssaultRifleLeft.png");
+    assaultRifleLeft = arl.getImage();
+    ImageIcon arr = new ImageIcon("images/AssaultRifleRight.png");
+    assaultRifleRight = arr.getImage();
 
     
   }
@@ -345,6 +351,7 @@ public class Player extends PhysicsObject {
       spread = 0.05;
       recoil = 3000;
       piercing = 1;
+      automatic = false;
       weaponLeft = pistolLeft;
       weaponRight = pistolRight;
       shootTimer = rateOfFire;
@@ -360,6 +367,7 @@ public class Player extends PhysicsObject {
       spread = 0.10;
       recoil = 10000;
       piercing = 0;
+      automatic = false;
       weaponLeft = shotgunLeft;
       weaponRight = shotgunRight;
       shootTimer = rateOfFire;
@@ -368,6 +376,22 @@ public class Player extends PhysicsObject {
       for(int i = 0; i < pelletCount; i++) {
         pellets[i] = new Vector2();
       }
+    }
+    // Assault Rifle
+    else if(weaponID == 3) {
+      weapon = 3;
+      damage = 5;
+      range = 500;
+      rateOfFire = 0.1;
+      power = 3000;
+      pelletCount = 0;
+      spread = 0.05;
+      recoil = 3000;
+      piercing = 1;
+      automatic = true;
+      weaponLeft = assaultRifleLeft;
+      weaponRight = assaultRifleRight;
+      shootTimer = rateOfFire;
     }
   }
 

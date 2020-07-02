@@ -16,13 +16,17 @@ public class PowerUp {
     }
 
     public void activate(Vector2 pos, int func) {
-
+        
         p = pos;
         function = func;
 
         if(function == 0) {
-            ImageIcon h = new ImageIcon("images/HealthPowerUp.png");
-            img = h.getImage();
+            ImageIcon ic = new ImageIcon("images/HealthPowerUp.png");
+            img = ic.getImage();
+        }
+        else if(function == 1) {
+            ImageIcon ic = new ImageIcon("images/RateOfFire.png");
+            img = ic.getImage();
         }
 
         active = true;
@@ -39,11 +43,14 @@ public class PowerUp {
         if(!active) {
             return;
         }
-
+        
         if(VMath.getDistanceBetweenPoints(target.getCentre(), getCentre()) < target.size/2 + size/2) {
                 
             if(function == 0) {
                 target.increaseHealth(10);
+            }
+            else if(function == 1) {
+                PlayerManager.activateStatusEffect(1, 0.5, 5);
             }
             active = false;
         }
@@ -54,10 +61,9 @@ public class PowerUp {
         if(!active) {
             return;
         }
-
-        if(function == 0) {
-            g2D.drawImage(img, (int)p.x, (int)p.y, null);
-        }
+        
+        g2D.drawImage(img, (int)p.x, (int)p.y, null);
+        
 
 
     }

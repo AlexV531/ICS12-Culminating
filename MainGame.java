@@ -72,7 +72,9 @@ class MainGame extends JFrame implements ActionListener, MouseListener {
   }
 
   public void mouseReleased(MouseEvent e) {
-
+    if(currentScreen != -1) {
+      mousePressed = false;
+    }
   }
 
   public void mouseClicked(MouseEvent e) {
@@ -219,9 +221,10 @@ class MainGame extends JFrame implements ActionListener, MouseListener {
       Level.addFloor(g2D, -1000, -1000, 50, 50, i);
 
       // Draws the player/enemies
-      PlayerManager.drawPlayer(g2D, CANVAS_WIDTH, CANVAS_HEIGHT);
 
       EnemyManager.drawEnemies(g2D, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+      PlayerManager.drawPlayer(g2D, CANVAS_WIDTH, CANVAS_HEIGHT);
 
       UIManager.headsUpDisplay(g2D, PlayerManager.getPlayer());
 
@@ -231,7 +234,9 @@ class MainGame extends JFrame implements ActionListener, MouseListener {
       if(mousePressed) {
         // Player's shoot method
         PlayerManager.shoot(g2D);
-        mousePressed = false;
+        if(!PlayerManager.getPlayer().automatic) {
+          mousePressed = false;
+        }
       }
     }
 
@@ -450,6 +455,14 @@ class MainGame extends JFrame implements ActionListener, MouseListener {
     addKeyBinding(canvas, KeyEvent.VK_2, false, "Switch2", (evt) -> {
       if(PlayerManager.getPlayer().weapon != 2 && PlayerManager.getPlayer().shotgunAcquired) {
         PlayerManager.switchWeapon(2); 
+      }
+      else {
+        PlayerManager.switchWeapon(0); 
+      }
+    });
+    addKeyBinding(canvas, KeyEvent.VK_3, false, "Switch3", (evt) -> {
+      if(PlayerManager.getPlayer().weapon != 3) {
+        PlayerManager.switchWeapon(3); 
       }
       else {
         PlayerManager.switchWeapon(0); 

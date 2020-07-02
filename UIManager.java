@@ -81,6 +81,8 @@ public class UIManager {
 
         g2D.drawImage(healthBar, (int)player.p.x - 568, (int)player.p.y + 404, null);
 
+        
+
 
     }
 

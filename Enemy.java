@@ -71,12 +71,22 @@ public class Enemy extends PhysicsObject {
     // If the enemy dies
     if(hp <= 0) {
       dead = true;
+      Vector2 deathPos = new Vector2();
+      deathPos.x = p.x;
+      deathPos.y = p.y;
+      if(Math.random() < 0.10) {
+        // Activates a power up on the enemy's position
+        EnemyManager.activatePowerUp(deathPos, 1);
+      }
+      
       // Moves the enemies to some "Graveyard" position so they don't interfere with the game after death
       p.x = 2000;
       p.y = 2000;
       // Adds to the enemies death count
       EnemyManager.enemyDead();
       //System.out.println("Enemy killed");
+      
+
     }
 
     // Physics object calculations
@@ -98,6 +108,8 @@ public class Enemy extends PhysicsObject {
       hp -= target.damage;
       // Adds a force to the enemy
       addForce(new Vector2(target.power, VMath.getAngleBetweenPoints(playerPos, bulletPos)));
+
+      EnemyManager.activateParticleEffect(p);
       
       return VMath.getDistanceBetweenPoints(target.p, p);
     }

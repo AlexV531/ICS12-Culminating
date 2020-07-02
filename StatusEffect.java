@@ -13,7 +13,7 @@ public class StatusEffect {
     public void calcTimer(double deltaTime) {
 
         if(active) {
-            System.out.println(effectTimer);
+            //System.out.println(effectTimer);
             effectTimer += deltaTime;
             if(effectTimer >= effectDelay) {
                 //System.out.println("deactivate");
