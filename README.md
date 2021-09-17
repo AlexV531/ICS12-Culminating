@@ -13,6 +13,6 @@ Aim and shoot with the mouse.
 
 Survive 3 waves to win the game.
 
-The weird looking orange thing with a white outline that drops from enemies increases your rate of fire for a short time. It's fun to mess around in the physics when you get one, try it out.
+The weird looking orange thing with a white outline that drops from enemies is a powerup. It increases your rate of fire for a short time. It's fun to mess around in the physics when you get one, try it out.
 
 (Currently the Play Again button in the end screen is broken, it is best just to quit)
